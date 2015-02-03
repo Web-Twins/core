@@ -43,7 +43,7 @@ o.start = function (host, port) {
 };
 
 /**
- * To validate the config path, if the path is not illegage then the method will reture false.
+ * To validate the config path(.html), if the path is not illegage then the method will reture false.
  */
 o.isAllowedPageConfigPath = function (path) {//{{{
 
@@ -68,19 +68,26 @@ o.isAllowedPageConfigPath = function (path) {//{{{
  */
 o.loadConfigPages = function (req, res) {//{{{
 
-    var path, html = "", pageConfig;
+    var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig;
     path = root + "pageConfig/" + req.path;
-
+    siteConfigFilePath = root + "pageConfig/base/site.html";
     if (php.is_file(path) 
         && this.isAllowedPageConfigPath(req.path)) {
         pageConfig = php.file_get_contents(path);
         pageConfig = new xml.parseXml(pageConfig);
-
     }
 
     if (!php.empty(pageConfig)) {
-        console.log("layout parse");
-        html = layoutParser.render(pageConfig);
+        customizedSiteConfig = pageConfig.get('/page').attr('siteConfig');
+        if (customizedSiteConfig) {
+            siteConfigFilePath = root + "pageConfig/base/" + customizedSiteConfig;
+        }
+        if (php.is_file(siteConfigFilePath)) {
+            content = php.file_get_contents(siteConfigFilePath);
+            siteConfig = new xml.parseXml(content);
+        }
+
+        html = layoutParser.render(pageConfig, siteConfig);
     }
 
     console.log('render html');

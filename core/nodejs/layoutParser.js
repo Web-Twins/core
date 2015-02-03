@@ -18,7 +18,7 @@ o.OUTPUT_JSON = 2;
 o.OUTPUT_TEXT = 3;
 o.enableIndent = true;
 
-o.render = function (pageConfig) {//{{{
+o.render = function (pageConfig, siteConfig) {//{{{
     var i, n;
     var list = [], key, child, nodeName, output, root;
 
@@ -41,7 +41,15 @@ o.render = function (pageConfig) {//{{{
         switch (nodeName) {
             case 'head':
                 if (this.output !== this.OUTPUT_HTML_PAGE) continue;
+                list.push('<head>');
+                if (siteConfig) {
+                    var siteHead = siteConfig.get("//head");
+                    if (siteHead) {
+                        list.push(this.renderHead(siteHead));
+                    }
+                }
                 list.push(this.renderHead(child[i]));
+                list.push('</head>');
                 break;
             case 'body':
                 switch (this.output) {
@@ -56,8 +64,6 @@ o.render = function (pageConfig) {//{{{
                         list.push("</body>");
                         break;
                 }
-
-
                 break;
             default:
                 break;
@@ -76,7 +82,8 @@ o.render = function (pageConfig) {//{{{
 
 o.renderHead = function (config) {//{{{
     var i, n;
-    var list = ['<head>'], key, child, nodeName;
+    var list = [], key, child, nodeName;
+
     child = config.childNodes();
     n = child.length;
     for (i = 0; i< n; i++) {
@@ -91,7 +98,6 @@ o.renderHead = function (config) {//{{{
                 break;
         }
     }
-    list.push('</head>');
     return list.join("\n");
 };//}}}
 
@@ -122,7 +128,7 @@ o.renderJs = function (jsText) {//{{{
     return list.join("\n");
 };//}}}
 
-o.renderBody = function (bodyConfig, indent) {
+o.renderBody = function (bodyConfig, indent) {//{{{
     var i, n;
     var key, list = [], nodeName, className, attrs = "",
         moduleHtml;
@@ -146,6 +152,10 @@ o.renderBody = function (bodyConfig, indent) {
                 if (this.enableIndent && indent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, indent + "$1");
                 list.push(moduleHtml);
                 break;
+            case 'js':
+                list.push(this.renderJs(child[i].text()));
+                break;
+
             default:
                 attrs = this.attributeToString(child[i].attrs());
                 list.push(indent + '<' + nodeName + attrs + '>');
@@ -158,7 +168,8 @@ o.renderBody = function (bodyConfig, indent) {
 
 
     return list.join("\n");
-};
+};//}}}
+
 
 /**
  * convert attributes of element to string.
