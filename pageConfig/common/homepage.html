@@ -1,0 +1,27 @@
+<page output="htmlPage" outputexp="json,text">
+    <head skipBaseHeadModule="true">
+        <module model="default.json">common/head/</module>
+
+        <css>
+            a.css
+            b.css
+            /static/x.css
+            http://www.puritys.me/z.css
+        </css>
+        <js>
+            a.js
+        </js>
+    </head>
+
+    <body>
+        <div class="grid">
+            <div class="col-2-3"> 
+                <module model="default.json">common/header/</module>
+            </div>
+            <div class="col-1-3">
+                <module model="default.json">common/header/</module>
+            </div>
+        </div>
+    </body>
+</page>
+

@@ -1,0 +1,36 @@
+<site ps="The config file is the common setting of website, every page will auto load this config to render css,js...">
+    <head>
+        <css>
+            reset.css
+            grid.css
+        </css>
+
+        <js>
+            jquery.js
+        </js>
+    </head>
+
+    <body>
+        <header ps="Render html in the top of pages.">
+            <div class="grid">
+                <module>common/header</module>
+            </div>
+            <div class="grid">
+                <module>common/menu</module>
+            </div>
+        </header>
+
+        <footer ps="Render html in the bottom of pages">
+            <div class="grid">
+              <module>common/footer</module>
+            </div>
+        </footer>
+    </body>
+
+</site>
+
+
+
+
+
+
