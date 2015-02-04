@@ -14,5 +14,6 @@ before_script:
 
 
 script:
-  - "istanbul cover _mocha -- -R spec tests/nodejs/*.js"
-  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  - "mocha tests/nodejs/*.js"
+ # - "istanbul cover _mocha -- -R spec tests/nodejs/*.js"
+ # - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
