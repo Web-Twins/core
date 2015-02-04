@@ -8,6 +8,8 @@ os:
   
 before_script:
   - "npm install"
+  - "npm install istanbul"
+  - "npm install coveralls"
   - "npm install -g mocha"
 
 
