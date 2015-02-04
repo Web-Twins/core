@@ -82,7 +82,7 @@ o.render = function (pageConfig, siteConfig) {//{{{
 
 o.renderHead = function (config) {//{{{
     var i, n;
-    var list = [], key, child, nodeName;
+    var list = [], key, child, nodeName, moduleHtml;
 
     child = config.childNodes();
     n = child.length;
@@ -96,6 +96,13 @@ o.renderHead = function (config) {//{{{
             case 'js':
                 list.push(this.renderJs(child[i].text()));
                 break;
+            case 'module':
+                moduleHtml = moduleObj.render(child[i]);
+                if (this.enableIndent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, "    $1");
+                list.push(moduleHtml);
+
+                break;
+
         }
     }
     return list.join("\n");

@@ -51,9 +51,10 @@ o.getTemplate = function (path) {
 
     switch (this.templateEngine) {
         case 'handlebars':
-            fullPath = root + path + 'views/' + name + ".hb.html";
+            fullPath = root + path + '/views/' + name + ".hb.html";
             break;
     }
+    //console.log("Template full path = " + fullPath);
     html = php.file_get_contents(fullPath);
     return html;
 

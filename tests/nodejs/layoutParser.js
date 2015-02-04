@@ -156,6 +156,32 @@ describe("Test redner site html", function () {//{{{
 
     });
 
+    it("Render site meta module in head.", function () {
+        var page = "<page output=\"htmlPage\"><head></head></page>";
+        var site = "<site><head><module model=\"default.json\">common/meta</module></head></site>";
+        var config = new xml.parseXml(page);
+        var siteConfig = new xml.parseXml(site);
+
+
+        var expect = "<!DOCTYPE html>\n<html>\n" +
+                     "<head>\n" +
+                     '    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />' + "\n" +
+                     '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' + "\n" +
+                     '    <META HTTP-EQUIV="CONTENT-LANGUAGE" CONTENT="zh-tw" />'  + "\n" +
+                     '    <META NAME="AUTHOR" CONTENT="" />'  + "\n" +
+                     '    <title>Web Twins</title>'  + "\n" +
+                     '    <meta name="keywords" content="Web Development, Node.js, Local development, Template" />'  + "\n" +
+                     '    <meta name="description" content="Web Twins description" />'  + "\n" +
+                     '    <meta http-equiv="Pragma" content="no-cache" />'  + "\n" +
+                     '    <meta http-equiv="Cache-Control" content="private" />'  + "\n" +
+                     "\n\n"+
+                     '</head>'  +  "\n" +
+                     "</html>";
+        var result = layoutParser.render(config, siteConfig);
+        assert.equal(expect, result);
+
+    });
+
 
 });//}}}
 
