@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - "0.10"
+  
+os:
+  :windowsxp
+  :linux
+  
+before_script:
+  - "npm install"
+  - "npm install -g mocha"
+
+
+script:
+  - "istanbul cover _mocha -- -R spec tests/nodejs/*.js"
+  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
