@@ -20,7 +20,7 @@ o.enableIndent = true;
 
 o.render = function (pageConfig, siteConfig) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, output, root;
+    var list = [], key, child, nodeName, output, root, siteBody;
 
     root = pageConfig.root();
     child = root.childNodes();
@@ -58,7 +58,23 @@ o.render = function (pageConfig, siteConfig) {//{{{
                         break;
                 }
 
-                list.push(this.renderBody(child[i], ""));
+                if (siteConfig) {
+                    siteBody = siteConfig.get("//header");
+                    if (siteBody) {
+                        list.push(this.renderBody(siteBody));
+                    }
+                }
+
+                list.push(this.renderBody(child[i]));
+
+                if (siteConfig) {
+                    siteBody = siteConfig.get("//footer");
+                    if (siteBody) {
+                        list.push(this.renderBody(siteBody));
+                    }
+                }
+
+
                 switch (this.output) {
                     case this.OUTPUT_HTML_PAGE:
                         list.push("</body>");
@@ -140,7 +156,7 @@ o.renderBody = function (bodyConfig, indent) {//{{{
     var key, list = [], nodeName, className, attrs = "",
         moduleHtml;
     var child = bodyConfig.childNodes();
-    if (typeof(indent) === "undefined") indent = "";
+    if (typeof(indent) === "undefined") indent = "    ";
 
     n = child.length;
     for (i = 0; i< n; i++) {

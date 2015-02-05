@@ -182,6 +182,25 @@ describe("Test redner site html", function () {//{{{
 
     });
 
+    it("Render site header and footer module in head.", function () {
+        var page = "<page output=\"htmlPage\"><body>pagebody</body></page>";
+        var site = "<site><body><header>test</header><footer>test_footer</footer></body></site>";
+        var config = new xml.parseXml(page);
+        var siteConfig = new xml.parseXml(site);
+
+
+        var expect = "<!DOCTYPE html>\n<html>\n" +
+                     "<body>\n" +
+                     '    test' + "\n" +
+                     "    pagebody"+ "\n" + 
+                     '    test_footer' + "\n" + 
+                     '</body>'  +  "\n" +
+                     "</html>";
+        var result = layoutParser.render(config, siteConfig);
+        //console.log(result);
+        assert.equal(expect, result);
+
+    });
 
 });//}}}
 
