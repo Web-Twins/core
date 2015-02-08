@@ -1,17 +1,18 @@
 var assert = require("assert");
-var layoutParser = new (require("./../../core/nodejs/layoutParser"));
+var layoutParserObj = require("./../../core/nodejs/layoutParser");
+var layoutParser = new layoutParserObj();
 var xml = require('libxmljs');
 
-describe("Test redner page html", function () {//{{{
+describe("Test redner page html: ", function () {//{{{
     it("render page", function () {
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
 
         var config = new xml.parseXml(page);
         var expect = "<!DOCTYPE html>\n<html>" +
-                     "\n<head>" +
-                     "\n" + '<link href="a.css" rel="stylesheet" type="text/css">' +
-                     "\n</head>" + 
-                     "\n</html>";
+                     "\n<head>\n" +
+                     '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" + 
+                     "</head>\n" + 
+                     "</html>";
         var result = layoutParser.render(config);
 
         assert.equal(expect, result);
@@ -35,11 +36,12 @@ describe("Test redner page html", function () {//{{{
         var config = new xml.parseXml(page);
         var expect = "<!DOCTYPE html>\n<html>\n<head>\n\n</head>\n" +
                      "<body>" + "\n" + 
-                        "<script src=\"angular.js\"></script>" + "\n" +
+                     "    <script src=\"angular.js\"></script>" + "\n" +
                      "</body>" + "\n" + 
                      "</html>"; 
-
+        
         var result = layoutParser.render(config);
+        //console.log(result);
         assert.equal(expect, result);
 
     });
@@ -48,15 +50,15 @@ describe("Test redner page html", function () {//{{{
 
 });//}}}
 
-describe("Test redner head html", function () {//{{{
+describe("Test redner head html:", function () {//{{{
 
     it("render css", function () {
         var css = "<head><css>a.css\
                    b.css\
                   </css></head>";
         var config = new xml.parseXml(css);
-        var expect = '<link href="a.css" rel="stylesheet" type="text/css">' + "\n" 
-                     + '<link href="b.css" rel="stylesheet" type="text/css">';
+        var expect = '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" 
+                     + '    <link href="b.css" rel="stylesheet" type="text/css">';
         var result = layoutParser.renderHead(config);
 
         assert.equal(expect, result);
@@ -68,13 +70,44 @@ describe("Test redner head html", function () {//{{{
                    b.js\
                   </js></head>";
         var config = new xml.parseXml(js);
-        var expect = '<script src="a.js"></script>' + "\n" 
-                     + '<script src="b.js"></script>';
+        var expect = '    <script src="a.js"></script>' + "\n" 
+                     + '    <script src="b.js"></script>';
         var result = layoutParser.renderHead(config);
 
         assert.equal(expect, result);
 
     });
+
+    it("render js in any position of body", function () {
+        var js = "<page><head>"+
+                    "<js position='topOfBody'>top_of_body.js</js>" + 
+                    "<js position='body'>body.js</js>" +
+                    "<js position='bottomOfBody'>bottomOfBody.js</js>" +
+                    "<js position='afterBody'>afterBody.js</js>" +
+                    "<js>head.js</js>" +
+                 "</head><body>test</body></page>";
+
+        var config = new xml.parseXml(js);
+        var expect = '<!DOCTYPE html>' + "\n" +
+                     "<html>\n" +
+                     "<head>\n" +
+                     "    <script src=\"head.js\"></script>\n" + 
+                     "</head>\n" +
+                     "<body>\n" +
+                     "    <script src=\"top_of_body.js\"></script>\n" +
+                     "    test\n" +
+                     "    <script src=\"body.js\"></script>\n" +
+                     "    <script src=\"bottomOfBody.js\"></script>\n" +
+                     "</body>\n" +
+                     "    <script src=\"afterBody.js\"></script>\n" + 
+                     "</html>";
+ 
+        var result = layoutParser.render(config);
+        //console.log(result);
+        assert.equal(expect, result);
+
+    });
+
 
     it("render body", function () {
         var body = '<body><div class="grid">'
@@ -119,7 +152,7 @@ describe("Test redner head html", function () {//{{{
 
 });//}}}
 
-describe("Test redner site html", function () {//{{{
+describe("Test redner site html: ", function () {//{{{
     it("render site css", function () {
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
         var site = "<site><head><css>reset.css</css></head></site>";
@@ -129,8 +162,8 @@ describe("Test redner site html", function () {//{{{
 
         var expect = "<!DOCTYPE html>\n<html>" +
                      "\n<head>" +
-                     "\n" + '<link href="reset.css" rel="stylesheet" type="text/css">' +
-                     "\n" + '<link href="a.css" rel="stylesheet" type="text/css">' +
+                     "\n" + '    <link href="reset.css" rel="stylesheet" type="text/css">' +
+                     "\n" + '    <link href="a.css" rel="stylesheet" type="text/css">' +
                      "\n</head>" + 
                      "\n</html>";
         var result = layoutParser.render(config, siteConfig);
@@ -146,12 +179,13 @@ describe("Test redner site html", function () {//{{{
 
 
         var expect = "<!DOCTYPE html>\n<html>" +
-                     "\n<head>" +
-                     "\n" + '<script src="jquery.js"></script>' +
-                     "\n" + '<link href="a.css" rel="stylesheet" type="text/css">' +
-                     "\n</head>" + 
-                     "\n</html>";
+                     "\n<head>\n" +
+                     '    <script src="jquery.js"></script>' + "\n" +
+                     '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" +
+                     "</head>\n" + 
+                     "</html>";
         var result = layoutParser.render(config, siteConfig);
+        //console.log(result);
         assert.equal(expect, result);
 
     });
@@ -188,7 +222,7 @@ describe("Test redner site html", function () {//{{{
         var config = new xml.parseXml(page);
         var siteConfig = new xml.parseXml(site);
 
-
+        var layoutParser = new layoutParserObj();
         var expect = "<!DOCTYPE html>\n<html>\n" +
                      "<body>\n" +
                      '    test' + "\n" +

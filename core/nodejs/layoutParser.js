@@ -4,6 +4,18 @@ function layoutParser(i18n) {
     if (i18n) {
         this.i18n = i18n;
     }
+
+    this.bodyJs = {
+        "top": [],
+        "bottom": [],
+        "after": []
+    };
+    this.bodyCss = {
+        "top": [],
+        "bottom": []
+    };
+
+
 }
 
 
@@ -18,10 +30,22 @@ o.OUTPUT_JSON = 2;
 o.OUTPUT_TEXT = 3;
 o.enableIndent = true;
 
+// The property to be rendered in body.
+o.bodyJs = {
+    "top": [],
+    "bottom": [],
+    "after": []
+};
+
+o.bodyCss = {
+    "top": [],
+    "bottom": []
+};
+
 o.render = function (pageConfig, siteConfig) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, output, root, siteBody;
-
+    var list = [], key, child, nodeName, output, root, siteBody, self;
+    self = this;
     root = pageConfig.root();
     child = root.childNodes();
     output = root.attr('output');
@@ -65,6 +89,13 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     }
                 }
 
+                //render js in top body
+                if (this.bodyJs['top']) {
+                    this.bodyJs['top'].forEach(function (c) {
+                        list.push(self.renderJs(c.text()));
+                    });
+                }
+
                 list.push(this.renderBody(child[i]));
 
                 if (siteConfig) {
@@ -74,12 +105,26 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     }
                 }
 
+                //render js in bottom of body
+                if (this.bodyJs['bottom']) {
+                    this.bodyJs['bottom'].forEach(function (c) {
+                        list.push(self.renderJs(c.text()));
+                    });
+                }
 
                 switch (this.output) {
                     case this.OUTPUT_HTML_PAGE:
                         list.push("</body>");
                         break;
                 }
+
+                //render js after body
+                if (this.bodyJs['after']) {
+                    this.bodyJs['after'].forEach(function (c) {
+                        list.push(self.renderJs(c.text()));
+                    });
+                }
+
                 break;
             default:
                 break;
@@ -98,7 +143,7 @@ o.render = function (pageConfig, siteConfig) {//{{{
 
 o.renderHead = function (config) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, moduleHtml;
+    var list = [], key, child, nodeName, moduleHtml, position;
 
     child = config.childNodes();
     n = child.length;
@@ -110,7 +155,20 @@ o.renderHead = function (config) {//{{{
                 list.push(this.renderCss(child[i].text()));
                 break;
             case 'js':
-                list.push(this.renderJs(child[i].text()));
+                position = child[i].attr("position");
+                if (position) position = position.value();
+
+                if (position && position.search(/body/i) !== -1) {
+                    if (position === "topOfBody") {
+                        this.bodyJs['top'].push(child[i]);
+                    } else if (position === "afterBody") {
+                        this.bodyJs['after'].push(child[i]); 
+                    } else {
+                        this.bodyJs['bottom'].push(child[i]);
+                    }
+                } else {
+                    list.push(this.renderJs(child[i].text()));
+                }
                 break;
             case 'module':
                 moduleHtml = moduleObj.render(child[i]);
@@ -125,42 +183,48 @@ o.renderHead = function (config) {//{{{
 };//}}}
 
 o.renderCss = function (cssText) {//{{{
-    var i, n;
+    var i, n, indent = "";
     var cssList, cssUrl, list = [];
+    if (this.enableIndent) {
+        indent = "    ";
+    }
+
     if (!cssText) return "";
     cssList = cssText.split(/[\r\n\s]+/);
     n = cssList.length;
     for (i = 0; i < n; i++) {
         cssUrl = cssList[i];
         if (!cssUrl) continue;
-        list.push('<link href="' +cssUrl+ '" rel="stylesheet" type="text/css">');
+        list.push(indent + '<link href="' +cssUrl+ '" rel="stylesheet" type="text/css">');
     }
     return list.join("\n");
 };//}}}
 
 o.renderJs = function (jsText) {//{{{
-    var i, n;
+    var i, n, indent = "";
     var jsList, jsUrl, list = [];
+    if (this.enableIndent) {
+        indent = "    ";
+    }
     jsList = jsText.split(/[\r\n\s]+/);
     n = jsList.length;
     for (i = 0; i < n; i++) {
         jsUrl = jsList[i];
         if (!jsUrl) continue;
-        list.push('<script src="' +jsUrl+ '"></script>');
+        list.push(indent + '<script src="' +jsUrl+ '"></script>');
     }
     return list.join("\n");
 };//}}}
 
 o.renderBody = function (bodyConfig, indent) {//{{{
     var i, n;
-    var key, list = [], nodeName, className, attrs = "",
+    var key, list = [], nodeName, attrs = "",
         moduleHtml;
     var child = bodyConfig.childNodes();
     if (typeof(indent) === "undefined") indent = "    ";
 
     n = child.length;
     for (i = 0; i< n; i++) {
-        className = child[i].attrs('class');
         nodeName = child[i].name();
         nodeName = nodeName.toLowerCase();
 

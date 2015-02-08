@@ -11,7 +11,7 @@
     "contributors": "pipi00000@gmail.com",
     "homepage": "https://github.com/Web-Twins/core",
     "license" : "MIT",
-    "files": ["core", "server.js", "locale"],
+    "files": ["core", "server.js", "locales"],
     "scripts": {
         "test": "mocha tests"
     },

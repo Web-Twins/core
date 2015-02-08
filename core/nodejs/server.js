@@ -2,7 +2,6 @@ var express = require('express')
 var app = express()
 var php = require('phplike/module');
 var xml = require('libxmljs');
-var root = __dirname + "/../../";
 var i18n = require('i18n');
 var language = "en";
 
@@ -15,11 +14,17 @@ i18n.configure({
 var layoutParser = new (require('./layoutParser.js'))(i18n);
 
 
-function server() {
-
+function server(root) {
+    if (root) {
+        this.root = root;
+    } else {
+        this.root = __dirname + "/../../";
+    }
 }
 
 var o = server.prototype;
+
+o.root = "";
 
 o.start = function (host, port) {
     var loadConfigPages;
@@ -28,7 +33,7 @@ o.start = function (host, port) {
     if (!host) host = "localhost";
 
 
-    app.use('/static', express.static(root + '/static'));
+    app.use('/static', express.static(this.root + '/static'));
 
     app.get('/*', loadConfigPages);
 
@@ -69,8 +74,8 @@ o.isAllowedPageConfigPath = function (path) {//{{{
 o.loadConfigPages = function (req, res) {//{{{
 
     var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig;
-    path = root + "pageConfig/" + req.path;
-    siteConfigFilePath = root + "pageConfig/base/site.html";
+    path = this.root + "/pageConfig/" + req.path;
+    siteConfigFilePath = this.root + "/pageConfig/base/site.html";
     if (php.is_file(path) 
         && this.isAllowedPageConfigPath(req.path)) {
         pageConfig = php.file_get_contents(path);
@@ -80,7 +85,7 @@ o.loadConfigPages = function (req, res) {//{{{
     if (!php.empty(pageConfig)) {
         customizedSiteConfig = pageConfig.get('/page').attr('siteConfig');
         if (customizedSiteConfig) {
-            siteConfigFilePath = root + "pageConfig/base/" + customizedSiteConfig;
+            siteConfigFilePath = this.root + "/pageConfig/base/" + customizedSiteConfig;
         }
         if (php.is_file(siteConfigFilePath)) {
             content = php.file_get_contents(siteConfigFilePath);
