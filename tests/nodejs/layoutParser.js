@@ -78,8 +78,11 @@ describe("Test redner head html:", function () {//{{{
 
     });
 
-    it("render js in any position of body", function () {
+    it("render js and css in any position of body", function () {
         var js = "<page><head>"+
+                    "<css>head.css</css>" + 
+                    "<css position='body'>body.css</css>" + 
+                    "<css position='bottomOfBody'>bottomOfBody.css</css>" + 
                     "<js position='topOfBody'>top_of_body.js</js>" + 
                     "<js position='body'>body.js</js>" +
                     "<js position='bottomOfBody'>bottomOfBody.js</js>" +
@@ -91,11 +94,15 @@ describe("Test redner head html:", function () {//{{{
         var expect = '<!DOCTYPE html>' + "\n" +
                      "<html>\n" +
                      "<head>\n" +
+                     '    <link href="head.css" rel="stylesheet" type="text/css">' + "\n" +
+
                      "    <script src=\"head.js\"></script>\n" + 
                      "</head>\n" +
                      "<body>\n" +
+                     '    <link href="body.css" rel="stylesheet" type="text/css">' + "\n" +
                      "    <script src=\"top_of_body.js\"></script>\n" +
                      "    test\n" +
+                     '    <link href="bottomOfBody.css" rel="stylesheet" type="text/css">' + "\n" +
                      "    <script src=\"body.js\"></script>\n" +
                      "    <script src=\"bottomOfBody.js\"></script>\n" +
                      "</body>\n" +

@@ -1,6 +1,6 @@
 var moduleObj = new (require('./module.js'));
 
-function layoutParser(i18n) {
+function layoutParser(i18n) {//{{{
     if (i18n) {
         this.i18n = i18n;
     }
@@ -16,7 +16,7 @@ function layoutParser(i18n) {
     };
 
 
-}
+}//}}}
 
 
 var o = layoutParser.prototype;
@@ -89,6 +89,13 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     }
                 }
 
+                //render css in top body
+                if (this.bodyCss['top']) {
+                    this.bodyCss['top'].forEach(function (c) {
+                        list.push(self.renderCss(c.text()));
+                    });
+                }
+
                 //render js in top body
                 if (this.bodyJs['top']) {
                     this.bodyJs['top'].forEach(function (c) {
@@ -103,6 +110,13 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     if (siteBody) {
                         list.push(this.renderBody(siteBody));
                     }
+                }
+
+                //render css in bottom of body
+                if (this.bodyCss['bottom']) {
+                    this.bodyCss['bottom'].forEach(function (c) {
+                        list.push(self.renderCss(c.text()));
+                    });
                 }
 
                 //render js in bottom of body
@@ -152,7 +166,19 @@ o.renderHead = function (config) {//{{{
         nodeName = nodeName.toLowerCase();
         switch (nodeName) {
             case 'css':
-                list.push(this.renderCss(child[i].text()));
+                position = child[i].attr("position");
+                if (position) position = position.value();
+
+                if (position && position.search(/body/i) !== -1) {
+                    if (position === "bottomOfBody") {
+                        this.bodyCss['bottom'].push(child[i]);
+                    } else {
+                        this.bodyCss['top'].push(child[i]);
+                    }
+                } else {
+                    list.push(this.renderCss(child[i].text()));
+                }
+
                 break;
             case 'js':
                 position = child[i].attr("position");
