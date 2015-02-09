@@ -11,8 +11,7 @@ i18n.configure({
     directory: __dirname + '/../../locales/system'
 });
 
-var layoutParser = new (require('./layoutParser.js'))(i18n);
-
+var layoutParserMod = require('./layoutParser.js');
 
 function server(root) {
     if (root) {
@@ -73,7 +72,11 @@ o.isAllowedPageConfigPath = function (path) {//{{{
  */
 o.loadConfigPages = function (req, res) {//{{{
 
+    var layoutParser;
     var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig;
+
+
+    layoutParser = new layoutParserMod(i18n, this.root);
     path = this.root + "/pageConfig/" + req.path;
     siteConfigFilePath = this.root + "/pageConfig/base/site.html";
     if (php.is_file(path) 

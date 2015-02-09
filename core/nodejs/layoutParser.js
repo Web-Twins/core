@@ -1,9 +1,12 @@
-var moduleObj = new (require('./module.js'));
+var moduleMod = require('./module.js');
 
-function layoutParser(i18n) {//{{{
+function layoutParser(i18n, root) {//{{{
+    
     if (i18n) {
         this.i18n = i18n;
     }
+
+    this.module = new moduleMod(root);
 
     this.bodyJs = {
         "top": [],
@@ -21,6 +24,7 @@ function layoutParser(i18n) {//{{{
 
 var o = layoutParser.prototype;
 
+o.module = "";
 o.output = 'htmlPage';
 o.i18n = ""; //internationization
 
@@ -197,7 +201,7 @@ o.renderHead = function (config) {//{{{
                 }
                 break;
             case 'module':
-                moduleHtml = moduleObj.render(child[i]);
+                moduleHtml = this.module.render(child[i]);
                 if (this.enableIndent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, "    $1");
                 list.push(moduleHtml);
 
@@ -261,7 +265,7 @@ o.renderBody = function (bodyConfig, indent) {//{{{
                 list.push(indent + child[i].text());
                 break;
             case "module":
-                moduleHtml = moduleObj.render(child[i]);
+                moduleHtml = this.module.render(child[i]);
                 if (this.enableIndent && indent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, indent + "$1");
                 list.push(moduleHtml);
                 break;

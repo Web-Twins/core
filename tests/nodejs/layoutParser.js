@@ -1,7 +1,9 @@
 var assert = require("assert");
 var layoutParserObj = require("./../../core/nodejs/layoutParser");
-var layoutParser = new layoutParserObj();
 var xml = require('libxmljs');
+var root = __dirname + '/../../';
+var layoutParser = new layoutParserObj({}, root);
+
 
 describe("Test redner page html: ", function () {//{{{
     it("render page", function () {
@@ -228,8 +230,7 @@ describe("Test redner site html: ", function () {//{{{
         var site = "<site><body><header>test</header><footer>test_footer</footer></body></site>";
         var config = new xml.parseXml(page);
         var siteConfig = new xml.parseXml(site);
-
-        var layoutParser = new layoutParserObj();
+        var layoutParser = new layoutParserObj({}, root);
         var expect = "<!DOCTYPE html>\n<html>\n" +
                      "<body>\n" +
                      '    test' + "\n" +
