@@ -1,6 +1,8 @@
 var moduleMod = require('./module.js');
+var php = require('phplike/module');
 
-function layoutParser(i18n, root) {//{{{
+
+function layoutParser(i18n, root, baseConfig) {//{{{
     
     if (i18n) {
         this.i18n = i18n;
@@ -18,6 +20,9 @@ function layoutParser(i18n, root) {//{{{
         "bottom": []
     };
 
+    if (!php.empty(baseConfig)) {
+        this.baseConfig = baseConfig;
+    }
 
 }//}}}
 
@@ -27,6 +32,7 @@ var o = layoutParser.prototype;
 o.module = "";
 o.output = 'htmlPage';
 o.i18n = ""; //internationization
+o.baseConfig = {};
 
 // output type: htmlPage, json, text
 o.OUTPUT_HTML_PAGE = 1;
@@ -214,7 +220,7 @@ o.renderHead = function (config) {//{{{
 
 o.renderCss = function (cssText) {//{{{
     var i, n, indent = "";
-    var cssList, cssUrl, list = [];
+    var cssList, cssUrl, finalCssUrl, list = [];
     if (this.enableIndent) {
         indent = "    ";
     }
@@ -225,14 +231,15 @@ o.renderCss = function (cssText) {//{{{
     for (i = 0; i < n; i++) {
         cssUrl = cssList[i];
         if (!cssUrl) continue;
-        list.push(indent + '<link href="' +cssUrl+ '" rel="stylesheet" type="text/css">');
+        finalCssUrl = this.getFinalStaticUrl(cssUrl, 'css');
+        list.push(indent + '<link href="' +finalCssUrl+ '" rel="stylesheet" type="text/css">');
     }
     return list.join("\n");
 };//}}}
 
 o.renderJs = function (jsText) {//{{{
     var i, n, indent = "";
-    var jsList, jsUrl, list = [];
+    var jsList, jsUrl, finalJsUrl, list = [];
     if (this.enableIndent) {
         indent = "    ";
     }
@@ -241,7 +248,8 @@ o.renderJs = function (jsText) {//{{{
     for (i = 0; i < n; i++) {
         jsUrl = jsList[i];
         if (!jsUrl) continue;
-        list.push(indent + '<script src="' +jsUrl+ '"></script>');
+        finalJsUrl = this.getFinalStaticUrl(jsUrl, 'js');
+        list.push(indent + '<script src="' +finalJsUrl+ '"></script>');
     }
     return list.join("\n");
 };//}}}
@@ -287,6 +295,23 @@ o.renderBody = function (bodyConfig, indent) {//{{{
     return list.join("\n");
 };//}}}
 
+/**
+ * Get final static url to  be readered, Combine the base url config and css file path.
+ */
+o.getFinalStaticUrl = function (path, type) {
+    var url = "";
+    if (path.indexOf('http') === 0) {
+        return path;
+    }
+    if (this.baseConfig['urlPaths']
+        && this.baseConfig['urlPaths'][type]
+    ) {
+        url = this.baseConfig['urlPaths'][type];
+    }
+
+    url += path;
+    return url;
+};
 
 /**
  * convert attributes of element to string.

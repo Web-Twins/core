@@ -4,6 +4,9 @@ var php = require('phplike/module');
 var xml = require('libxmljs');
 var i18n = require('i18n');
 var language = "en";
+var less = require('less');
+
+
 
 i18n.configure({
     locales:['en', 'zh_TW'],
@@ -26,12 +29,14 @@ var o = server.prototype;
 o.root = "";
 
 o.start = function (host, port) {
-    var loadConfigPages;
+    var loadConfigPages, loadLess;
     loadConfigPages = this.loadConfigPages.bind(this);
+    loadLess = this.loadLess.bind(this);
+
     if (!port) port = 80;
     if (!host) host = "localhost";
 
-
+    app.use('/static/**.less', loadLess);
     app.use('/static', express.static(this.root + '/static'));
 
     app.get('/*', loadConfigPages);
@@ -73,11 +78,15 @@ o.isAllowedPageConfigPath = function (path) {//{{{
 o.loadConfigPages = function (req, res) {//{{{
 
     var layoutParser;
-    var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig;
+    var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig, baseConfig;
 
+    // baseConfig is a global setting of a website.
+    baseConfig = this.loadBaseConfig();
 
-    layoutParser = new layoutParserMod(i18n, this.root);
+    layoutParser = new layoutParserMod(i18n, this.root, baseConfig);
     path = this.root + "/pageConfig/" + req.path;
+
+
     siteConfigFilePath = this.root + "/pageConfig/base/site.html";
     if (php.is_file(path) 
         && this.isAllowedPageConfigPath(req.path)) {
@@ -104,5 +113,69 @@ o.loadConfigPages = function (req, res) {//{{{
 
 };//}}}
 
+o.loadBaseConfig = function () {//{{{
+    var x, baseConfig, pathNodes, pathNode,
+        name, value, i, n;
+    var baseFile = this.root + "/pageConfig/base/base.html";
+    baseConfig = {
+        "urlPaths": {} ,
+        "paths": {}
+    };
+    if (php.is_file(baseFile)) {
+        x = new xml.parseXml(php.file_get_contents(baseFile));
+    }
+
+    var xmlToJson = function (key, refResult) {
+        pathNodes = x.get('//' + key);
+
+        if (!pathNodes) {
+            return "";
+        }
+
+        pathNodes = pathNodes.childNodes();
+        n = pathNodes.length;
+        for (i = 0; i < n; i++) {
+            pathNode = pathNodes[i];
+            name = pathNode.name();
+            if (name === "text") continue;
+            value = pathNode.text();
+            refResult[key][name] = value;
+        }
+
+    };
+
+    xmlToJson("urlPaths", baseConfig);
+    xmlToJson("paths", baseConfig);
+
+
+    return baseConfig;
+};//}}}
+
+o.loadLess = function (req, res) {
+    var html = "", path;
+
+    path = this.root + "/"  + req.baseUrl;
+
+    if (!php.is_file(path)) {
+
+       res.write(".fileNotFound{}"); 
+
+    } else {
+        res.contentType("text/css");
+        less.render(php.file_get_contents(path), 
+            {
+                paths: ['.', './static/css'],
+            },
+            function (e, output) {
+               if (e) console.log(e);
+               res.write(output.css);
+
+                res.end();
+            }
+        );
+    }
+
+
+};
 
 module.exports = server;
