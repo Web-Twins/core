@@ -1,4 +1,4 @@
-The core file of Web-Twins
+The core program of Web-Twins
 ==========================
  
 
@@ -15,7 +15,7 @@ All Frontend engineer should do is to edit the templates,css,javascript and comm
 
 
 
-Attention!
-----------
+Attention for development!
+--------------------------
 
 * You should set head tag in page config, or the setting of head in site config will not be rendered.
