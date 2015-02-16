@@ -155,10 +155,11 @@ o.loadLess = function (req, res) {
     var html = "", path;
 
     path = this.root + "/"  + req.baseUrl;
-
+    //console.log("Less Compiler: " + path);
     if (!php.is_file(path)) {
 
        res.write(".fileNotFound{}"); 
+       res.end();
 
     } else {
         res.contentType("text/css");
@@ -169,8 +170,7 @@ o.loadLess = function (req, res) {
             function (e, output) {
                if (e) console.log(e);
                res.write(output.css);
-
-                res.end();
+               res.end();
             }
         );
     }

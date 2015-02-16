@@ -24,15 +24,15 @@ o.render = function (config) {
         modelName = "default.json";
     }
 
-    modelPath = 'templates/' + templatePath + "/models/" + modelName;
+    modelPath = 'modules/' + templatePath + "/models/" + modelName;
 
     model = this.getModel(modelPath);
-    templateHtml = this.getTemplate('templates/' + templatePath);
+    templateHtml = this.getTemplate('modules/' + templatePath);
 
 
     templateHtml = templateHtml.replace(/\{\{[\s]?\>[\s]+([^\}]+)\}\}/m, function (str, fileName) {
         var path;
-        path = self.root + '/' + 'templates/' + templatePath + "/views/" + fileName;
+        path = self.root + '/' + 'modules/' + templatePath + "/views/" + fileName;
         if (php.is_file(path)) {
             return php.file_get_contents(path);
         }

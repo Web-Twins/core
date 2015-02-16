@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "name" : "WebTwins",
+    "name" : "web-twins",
     "description": "The core of web-twins ",
     "main": "Web-Twins-core",
     "keywords": ["templates engine"],
