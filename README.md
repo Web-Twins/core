@@ -11,7 +11,8 @@ Purpose
 
 Make development simple.
 
-All Frontend engineer should do is to edit the template and commit, then all were finished. Backend engineer do not need to integrate any code, This will be a perfect framework to implment this development way.
+All Frontend engineer should do is to edit the templates,css,javascript and commit, then everything is finished. Backend engineer do not need to spend time integrating templates. This will be a perfect way to develop a website.
+
 
 
 Attention!
