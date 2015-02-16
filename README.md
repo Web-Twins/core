@@ -1,4 +1,4 @@
-The core file of Web-Twins
+The core program of Web-Twins
 ==========================
  
 
@@ -6,7 +6,18 @@ Travis CI status: [![Unit testing](https://travis-ci.org/Web-Twins/core.png?bran
 
 <img src="https://camo.githubusercontent.com/fe2d9e9063dabaf5951ef8f3835bbbc16cec52e3/68747470733a2f2f706f7365722e707567782e6f72672f7a6f72646975732f6c696768746e63616e64792f6c6963656e73652e737667" alt="license">
 
-Attention!
-----------
+<img src="https://raw.githubusercontent.com/puritys/MyProgram/master/images/twins_architecture.png">
+
+Purpose
+-------
+
+Make development simple.
+
+All Frontend engineer should do is to edit the templates,css,javascript and commit, then everything is finished. Backend engineer do not need to spend time integrating templates. This will be a perfect way to develop a website.
+
+
+
+Attention for development!
+--------------------------
 
 * You should set head tag in page config, or the setting of head in site config will not be rendered.
