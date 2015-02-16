@@ -21,7 +21,7 @@ describe("Test: getCssPath", function () {
         var split = result['path'].split(/\//);
         //console.log(result);
         assert.equal(expect, split[split.length - 1]);
-        assert.equal('/template/static/' + expect, result['urlPath']);
+        assert.equal('/template/common/header/static/' + expect, result['urlPath']);
     });
 
     it("get css path", function () {
@@ -32,7 +32,7 @@ describe("Test: getCssPath", function () {
         var result = tester.getCssPath(module);
         var split = result['path'].split(/\//);
         assert.equal(expect, split[split.length - 1]);
-        assert.equal('/template/static/' + expect, result['urlPath']);
+        assert.equal('/template/common/meta/static/' + expect, result['urlPath']);
 
     });
 
