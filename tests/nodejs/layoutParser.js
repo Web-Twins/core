@@ -1,7 +1,7 @@
 var assert = require("assert");
 var layoutParserObj = require("./../../core/nodejs/layoutParser");
 var xml = require('libxmljs');
-var root = __dirname + '/../../';
+var root = __dirname + '/../../examples/';
 var layoutParser = new layoutParserObj({}, root);
 
 
@@ -118,7 +118,7 @@ describe("Test redner head html:", function () {//{{{
     });
 
 
-    it("render body", function () {
+    it("should render body correctly", function () {
         var body = '<body><div class="grid">'
                    +'text1' 
                    +'<div class="col-2-3">'
@@ -140,8 +140,7 @@ describe("Test redner head html:", function () {//{{{
                       + '        text2' + "\n"
                       + '        <header class="template-header">' + "\n"
                       + '            <div>' + "\n"
-                      + '                <div><img src="http://test" alt="logo" />Logo</div>' + "\n"
-                      + '                <div>Xzzz 你好!</div>' + "\n"
+                      + '                <div>Welcome Joe!</div>' + "\n"
                       + '            </div>' + "\n"
                       + '        </header>' + "\n\n"
                       + '         text3'  + "\n"
