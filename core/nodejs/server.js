@@ -16,19 +16,19 @@ i18n.configure({
 
 var layoutParserMod = require('./layoutParser.js');
 
-function server(root) {
+function server(root) {//{{{
     if (root) {
         this.root = root;
     } else {
         this.root = __dirname + "/../../";
     }
-}
+}//}}}
 
 var o = server.prototype;
 
 o.root = "";
 
-o.start = function (host, port) {
+o.start = function (host, port) {//{{{
     var loadConfigPages, loadLess;
     loadConfigPages = this.loadConfigPages.bind(this);
     loadLess = this.loadLess.bind(this);
@@ -38,6 +38,11 @@ o.start = function (host, port) {
 
     app.use('/static/**.less', loadLess);
     app.use('/static', express.static(this.root + '/static'));
+    app.use('/modules/**.less', loadLess);
+    app.use('/modules/**.css', express.static(this.root + '/static'));
+    app.use('/modules/**.js', express.static(this.root + '/static'));
+
+
 
     app.get('/*', loadConfigPages);
 
@@ -49,7 +54,7 @@ o.start = function (host, port) {
     });
 
 
-};
+};//}}}
 
 /**
  * To validate the config path(.html), if the path is not illegage then the method will reture false.
@@ -151,7 +156,7 @@ o.loadBaseConfig = function () {//{{{
     return baseConfig;
 };//}}}
 
-o.loadLess = function (req, res) {
+o.loadLess = function (req, res) {//{{{
     var html = "", path;
 
     path = this.root + "/"  + req.baseUrl;
@@ -176,6 +181,6 @@ o.loadLess = function (req, res) {
     }
 
 
-};
+};//}}}
 
 module.exports = server;

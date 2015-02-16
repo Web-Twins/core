@@ -2,7 +2,16 @@ var assert = require("assert");
 var layoutParserObj = require("./../../core/nodejs/layoutParser");
 var xml = require('libxmljs');
 var root = __dirname + '/../../examples/';
-var layoutParser = new layoutParserObj({}, root);
+var tester;
+var layoutParser;
+var baseConfig = {
+    "urlPaths": {
+        "template": "/modules"
+    }
+};
+
+
+tester = layoutParser = new layoutParserObj({}, root, baseConfig);
 
 
 describe("Test redner page html: ", function () {//{{{
@@ -156,6 +165,37 @@ describe("Test redner head html:", function () {//{{{
         assert.equal(expect, result);
 
     });
+
+    it("should render module less and css in head", function () {
+        var page = '<page><head></head><body>'
+                   + '<module model="default.json">common/header/</module>'
+                   +'</body></page>';
+
+        page = new xml.parseXml(page);
+
+        var expect = "<!DOCTYPE html>\n<html>\n" + 
+                     '<head>' + "\n\n" +
+                     '    <link href="/modules/common/header//static/header.less" rel="stylesheet" type="text/css">'  + "\n" + 
+                     '</head>' + "\n" + 
+                     '<body>'+ "\n"
+                   + '    <header class="template-header">' + "\n"
+                   + '        <div>' + "\n"
+                   + '            <div>Welcome Joe!</div>' + "\n"
+                   + '        </div>' + "\n"
+                   + '    </header>' + "\n\n"
+                   + '</body>' + "\n" +
+                     '</html>';
+        var tester = new layoutParserObj({}, root, baseConfig);
+
+
+        tester.output = 1;
+        tester.enableIndent = true; 
+        var result = tester.render(page, "");
+        //console.log(result);
+        assert.equal(expect, result);
+
+    });
+
 
 
 });//}}}

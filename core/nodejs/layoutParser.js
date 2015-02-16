@@ -8,7 +8,6 @@ function layoutParser(i18n, root, baseConfig) {//{{{
         this.i18n = i18n;
     }
 
-    this.module = new moduleMod(root);
 
     this.bodyJs = {
         "top": [],
@@ -22,18 +21,22 @@ function layoutParser(i18n, root, baseConfig) {//{{{
 
     if (!php.empty(baseConfig)) {
         this.baseConfig = baseConfig;
+    } else {
+        baseConfig = {};
     }
+    this.context.baseConfig = baseConfig;
 
+    this.module = new moduleMod(root, this.context);
 }//}}}
 
 
 var o = layoutParser.prototype;
-
+//{{{ // properties
 o.module = "";
 o.output = 'htmlPage';
 o.i18n = ""; //internationization
 o.baseConfig = {};
-
+o.context = {}; //Server context
 // output type: htmlPage, json, text
 o.OUTPUT_HTML_PAGE = 1;
 o.OUTPUT_JSON = 2;
@@ -50,11 +53,12 @@ o.bodyJs = {
 o.bodyCss = {
     "top": [],
     "bottom": []
-};
+};//}}}
 
 o.render = function (pageConfig, siteConfig) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, output, root, siteBody, self;
+    var list = [], key, child, nodeName, output, root, 
+        siteBody, self, modules;
     self = this;
     root = pageConfig.root();
     child = root.childNodes();
@@ -83,6 +87,15 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     }
                 }
                 list.push(this.renderHead(child[i]));
+                // render Module Level css
+                moduleCss = this.getModuleCss(pageConfig);
+                var cssCount = moduleCss.length;
+                for (var j = 0; j < cssCount; j++) {
+                    if (!moduleCss[j] || !moduleCss[j]['urlPath']) continue;
+
+                    var isFinalPath = true;
+                    list.push(this.renderCss(moduleCss[j]['urlPath'], isFinalPath));
+                }
                 list.push('</head>');
                 break;
             case 'body':
@@ -167,8 +180,7 @@ o.render = function (pageConfig, siteConfig) {//{{{
 
 o.renderHead = function (config) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, moduleHtml, position;
-
+    var list = [], key, child, nodeName, moduleHtml, position, moduleCss;
     child = config.childNodes();
     n = child.length;
     for (i = 0; i< n; i++) {
@@ -218,9 +230,17 @@ o.renderHead = function (config) {//{{{
     return list.join("\n");
 };//}}}
 
-o.renderCss = function (cssText) {//{{{
+/**
+ *
+ * @param isFinalPath css url path is already final path, do not appent or prepend any text.
+ */
+o.renderCss = function (cssText, isFinalPath) {//{{{
     var i, n, indent = "";
     var cssList, cssUrl, finalCssUrl, list = [];
+
+    if (php.empty(isFinalPath)) {
+        isFinalPath = false;
+    }
     if (this.enableIndent) {
         indent = "    ";
     }
@@ -231,7 +251,11 @@ o.renderCss = function (cssText) {//{{{
     for (i = 0; i < n; i++) {
         cssUrl = cssList[i];
         if (!cssUrl) continue;
-        finalCssUrl = this.getFinalStaticUrl(cssUrl, 'css');
+        if (isFinalPath === false) {
+            finalCssUrl = this.getFinalStaticUrl(cssUrl, 'css');
+        } else {
+            finalCssUrl = cssUrl;
+        }
         list.push(indent + '<link href="' +finalCssUrl+ '" rel="stylesheet" type="text/css">');
     }
     return list.join("\n");
@@ -298,7 +322,7 @@ o.renderBody = function (bodyConfig, indent) {//{{{
 /**
  * Get final static url to  be readered, Combine the base url config and css file path.
  */
-o.getFinalStaticUrl = function (path, type) {
+o.getFinalStaticUrl = function (path, type) {//{{{
     var url = "";
     if (path.indexOf('http') === 0) {
         return path;
@@ -311,12 +335,12 @@ o.getFinalStaticUrl = function (path, type) {
 
     url += path;
     return url;
-};
+};//}}}
 
 /**
  * convert attributes of element to string.
  */
-o.attributeToString = function (attrs) {
+o.attributeToString = function (attrs) {//{{{
     var html = "", i ,n, attr;
     n = attrs.length;
     for (i = 0; i < n; i++) {
@@ -325,9 +349,9 @@ o.attributeToString = function (attrs) {
         html += attr.name() + "=\"" + attr.value() + "\"";
     }
     return html;
-};
+};//}}}
 
-o.getOutputType = function (type) {
+o.getOutputType = function (type) {//{{{
     switch (type) {
         case 'htmlPage':
             return this.OUTPUT_HTML_PAGE;
@@ -340,6 +364,52 @@ o.getOutputType = function (type) {
             break;
     };
     return this.OUTPUT_HTML_PAGE;
-};
+};//}}}
+
+o.getModuleCss = function (config) {//{{{
+    var i, n;
+    var head, body, css, result = [];
+
+    head = config.get('//head');
+    if (head) {
+        children = head.childNodes();
+        n = children.length;
+        for (i = 0; i < n; i++) {
+            module = children[i];
+            if (module.name() === "module") {
+                result.push(this.module.getCssPath(module));
+            }
+        }
+    }
+
+    body = config.get('//body');
+    if (body) {
+        this.getModuleCssRecursive(body, result);
+    }
+    return result;
+};//}}}
+
+/**
+ *
+ * @param &result
+ */
+o.getModuleCssRecursive = function (body, result) {//{{{
+    var children, module, name;
+    children = body.childNodes();
+    n = children.length;
+    for (i = 0; i < n; i++) {
+        module = children[i];
+        name = module.name();
+        if (!module) continue;
+        if (name === 'text') continue;
+        if (name === "module") {
+            result.push(this.module.getCssPath(module));
+        } else {
+            this.getModuleCssRecursive(module, result);
+        }
+    }
+
+}; //}}}
+
 
 module.exports = layoutParser;

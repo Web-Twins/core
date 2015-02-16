@@ -1,3 +1,4 @@
 {
-	"ERROR_IS_NOT_ALLOWED_FORMAT": "The page config should have the correct file extension, we only support html format."
+	"ERROR_IS_NOT_ALLOWED_FORMAT": "The page config should have the correct file extension, we only support html format.",
+    "ERROR_MODULE_MISSING_NAME": "The module definition is missing name."
 }
