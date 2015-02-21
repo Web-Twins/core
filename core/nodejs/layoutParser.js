@@ -18,7 +18,9 @@ function layoutParser(i18n, root, baseConfig) {//{{{
         "top": [],
         "bottom": []
     };
-
+    this.cssFile = {
+        "moduleLevel": []
+    };
     if (!php.empty(baseConfig)) {
         this.baseConfig = baseConfig;
     } else {
@@ -42,6 +44,10 @@ o.OUTPUT_HTML_PAGE = 1;
 o.OUTPUT_JSON = 2;
 o.OUTPUT_TEXT = 3;
 o.enableIndent = true;
+o.cssFile = {
+    "moduleLevel": []
+};
+
 
 // The property to be rendered in body.
 o.bodyJs = {
@@ -59,6 +65,7 @@ o.render = function (pageConfig, siteConfig) {//{{{
     var i, n;
     var list = [], key, child, nodeName, output, root, 
         siteBody, self, modules;
+
     self = this;
     root = pageConfig.root();
     child = root.childNodes();
@@ -87,7 +94,10 @@ o.render = function (pageConfig, siteConfig) {//{{{
                     }
                 }
                 list.push(this.renderHead(child[i]));
-                // render Module Level css
+
+                //render Module Level Css in site.html
+                this.getModuleCss(siteConfig);
+                // render Module Level css in page.html
                 moduleCss = this.getModuleCss(pageConfig);
                 var cssCount = moduleCss.length;
                 for (var j = 0; j < cssCount; j++) {
@@ -368,8 +378,9 @@ o.getOutputType = function (type) {//{{{
 
 o.getModuleCss = function (config) {//{{{
     var i, n;
-    var head, body, css, result = [];
+    var head, body, css, moduleCss;
 
+    if (!config) return [];
     head = config.get('//head');
     if (head) {
         children = head.childNodes();
@@ -377,39 +388,59 @@ o.getModuleCss = function (config) {//{{{
         for (i = 0; i < n; i++) {
             module = children[i];
             if (module.name() === "module") {
-                result.push(this.module.getCssPath(module));
+                moduleCss = this.module.getCssPath(module);
+                if (!this.isExistStaticFile(moduleCss.id, this.cssFile.moduleLevel)) {
+                    this.cssFile.moduleLevel.push(moduleCss);
+                }
             }
         }
     }
 
     body = config.get('//body');
     if (body) {
-        this.getModuleCssRecursive(body, result);
+        this.getModuleCssRecursive(body, this.cssFile.moduleLevel);
     }
-    return result;
+    return this.cssFile.moduleLevel; 
 };//}}}
 
 /**
+ * get the css file recursively from page config
  *
  * @param &result
  */
 o.getModuleCssRecursive = function (body, result) {//{{{
-    var children, module, name;
+    var i, n;
+    var children, module, name, moduleCss;
     children = body.childNodes();
     n = children.length;
+
     for (i = 0; i < n; i++) {
         module = children[i];
         name = module.name();
         if (!module) continue;
         if (name === 'text') continue;
         if (name === "module") {
-            result.push(this.module.getCssPath(module));
+            moduleCss = this.module.getCssPath(module);
+            if (!this.isExistStaticFile(moduleCss.id, this.cssFile.moduleLevel)) {
+                result.push(moduleCss);
+            }
         } else {
             this.getModuleCssRecursive(module, result);
         }
     }
 
 }; //}}}
+
+o.isExistStaticFile = function (id, stack) {
+    var i, n;
+    n = stack.length;
+    for (i = 0; i< n; i++) {
+        if (stack[i].id === id) {
+            return true;
+        }
+    }
+    return false;
+};
 
 
 module.exports = layoutParser;

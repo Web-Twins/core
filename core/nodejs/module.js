@@ -1,7 +1,7 @@
 var php = require('phplike/module');
 var Handlebars = require('handlebars');
 var util = new (require('./util'))();
-
+var checksum = require('checksum');
 
 function moduleObj (root, context) {
 
@@ -99,17 +99,17 @@ o.getCssPath = function (module) {
     css = {};
     info = this.getModuleInfo(module);
     path = info['moduleFullPath'] + '/static/' + info.moduleName + '.less';
-
     if (php.is_file(path)) {
         css.path = path;
         css.urlPath = this.context.baseConfig.urlPaths.template + '/' + info.modulePath + '/static/' +info.moduleName + '.less' ;
+        css.id = checksum(path);
     } else {
 
         path = info['moduleFullPath'] + '/static/' + info.moduleName + '.css';
         if (php.is_file(path)) {
             css.path = path;
             css.urlPath = this.context.baseConfig.urlPaths.template +'/' + info.modulePath + '/static/' +info.moduleName + '.css' ;
-
+            css.id = checksum(path);
         }
     }
     return css;

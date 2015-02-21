@@ -257,9 +257,11 @@ describe("Test redner site html: ", function () {//{{{
                      '    <meta http-equiv="Pragma" content="no-cache" />'  + "\n" +
                      '    <meta http-equiv="Cache-Control" content="private" />'  + "\n" +
                      "\n\n"+
+                     '    <link href="/modules/common/meta/static/meta.css" rel="stylesheet" type="text/css">' + "\n" +
                      '</head>'  +  "\n" +
                      "</html>";
         var result = layoutParser.render(config, siteConfig);
+        //console.log(result);
         assert.equal(expect, result);
 
     });
