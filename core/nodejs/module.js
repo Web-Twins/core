@@ -17,6 +17,10 @@ o.context = {};
 o.templateEngine = "handlebars";
 o.templateBasePath = "";
 
+o.moduleList = {
+    yaml: ""
+};
+
 o.render = function (config) {//{{{
 
     var modelName, modelPath, templateName, templatePath, templateHtml, model,  template, moduleNode, self;
@@ -54,18 +58,30 @@ o.render = function (config) {//{{{
 
 
 o.getModel = function (path) {//{{{
-    var html, fullPath;
+    var data, fullPath, splitByDot, extName = "";
     fullPath = this.templateBasePath + '/' + path;
+
     if (!php.is_file(fullPath)) {
         console.log(fullPath + " is not exist.");
         return "";
     }
 
-    html = php.file_get_contents(fullPath);
-    if (html) {
-        html = php.json_decode(html);
+    data = php.file_get_contents(fullPath);
+    if (data) {
+        splitByDot = path.split(/\./);
+        if (splitByDot.length > 0) {
+            extName = splitByDot[splitByDot.length -1];
+        }
+        if (extName.toLowerCase() === "yaml") {
+            if (!this.moduleList.YAML) {
+                this.moduleList.YAML = require('yamljs'); 
+            }
+            data = this.moduleList.YAML.parse(data);
+        } else {
+            data = php.json_decode(data);
+        }
     }
-    return html;
+    return data;
 };//}}}
 
 
@@ -94,7 +110,7 @@ o.getTemplate = function (path) {//{{{
 
 };//}}}
 
-o.getCssPath = function (module) {
+o.getCssPath = function (module) {//{{{
     var path, info, css;
     css = {};
     info = this.getModuleInfo(module);
@@ -114,9 +130,9 @@ o.getCssPath = function (module) {
     }
     return css;
 
-};
+};//}}}
 
-o.getModuleInfo = function (module) {
+o.getModuleInfo = function (module) {//{{{
     var info = {}, modulePath, matches;
     modulePath = module.text();
     info["modulePath"] = modulePath;
@@ -128,6 +144,6 @@ o.getModuleInfo = function (module) {
     }
     info["moduleFullPath"] = this.templateBasePath + '/' + info.modulePath;
     return info;
-};
+};//}}}
 
 module.exports = moduleObj;

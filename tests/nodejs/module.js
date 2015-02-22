@@ -11,6 +11,7 @@ var baseConfig = {
 tester.context = {
     baseConfig: baseConfig
 };
+
 describe("Test: getCssPath", function () {
     it("get less path", function () {
         var moduleHtml = '<t><module>common/header</module></t>';
@@ -36,8 +37,33 @@ describe("Test: getCssPath", function () {
 
     });
 
+});
+
+
+describe("Test: get models", function () {
+    it("load json file", function () {
+        var modelFilePath = "common/meta/models/default.json";
+        var result = tester.getModel(modelFilePath);
+        //console.log(result);
+        assert.equal("Web Twins", result['title']);
+    });
+
+    it("load yaml file", function () {
+        var modelFilePath = "common/meta/models/default.yaml";
+        var result = tester.getModel(modelFilePath);
+        //console.log(result);
+        assert.equal("Web Twins", result['title']);
+    });
+
+    it("no file extension (The default extension is json format)", function () {
+        var modelFilePath = "common/meta/models/default";
+        var result = tester.getModel(modelFilePath);
+        //console.log(result);
+        assert.equal("Web Twins", result['title']);
+    });
+
+
 
 
 });
-
 
