@@ -95,11 +95,13 @@ o.loadConfigPages = function (req, res) {//{{{
         && this.isAllowedPageConfigPath(req.path)) {
         //pageConfig = php.file_get_contents(path);
         pageDom = new php.DOMDocument();
-        pageCofnig = pageDom.load(path);
+        pageConfig = pageDom.load(path);
     }
 
     if (!php.empty(pageConfig)) {
-        customizedSiteConfig = pageConfig.get('/page').attr('siteConfig');
+        if (pageConfig['attributes']['siteConfig']) {
+            customizedSiteConfig = pageConfig['attributes']['siteConfig'];
+        }
         if (customizedSiteConfig) {
             siteConfigFilePath = this.root + "/pageConfig/base/" + customizedSiteConfig;
         }
@@ -108,7 +110,7 @@ o.loadConfigPages = function (req, res) {//{{{
             siteCofnig = siteDom.load(siteConfigFilePath);
         }
 
-        html = layoutParser.render([pageDom, pageConfig], [siteDom, siteConfig]);
+        html = layoutParser.render(pageDom, siteDom);
     }
 
     console.log('render html');
@@ -121,28 +123,32 @@ o.loadBaseConfig = function () {//{{{
     var x, baseConfig, pathNodes, pathNode,
         name, value, i, n;
     var baseFile = this.root + "/pageConfig/base/base.html";
+    var dom = new php.DOMDocument();
     baseConfig = {
         "urlPaths": {} ,
         "paths": {}
     };
     if (php.is_file(baseFile)) {
-        x = new xml.parseXml(php.file_get_contents(baseFile));
+        dom.load(baseFile);
     }
 
     var xmlToJson = function (key, refResult) {
-        pathNodes = x.get('//' + key);
+        pathNodes = dom.getElementsByTagName(key);
 
-        if (!pathNodes) {
+        if (!pathNodes || !pathNodes[0]) {
+            return "";
+        }
+        if (!pathNodes[0].childNodes) {
             return "";
         }
 
-        pathNodes = pathNodes.childNodes();
+        pathNodes = pathNodes[0].childNodes;
         n = pathNodes.length;
         for (i = 0; i < n; i++) {
             pathNode = pathNodes[i];
-            name = pathNode.name();
+            name = pathNode.name;
             if (name === "text") continue;
-            value = pathNode.text();
+            value = pathNode.value;
             refResult[key][name] = value;
         }
 
@@ -150,7 +156,6 @@ o.loadBaseConfig = function () {//{{{
 
     xmlToJson("urlPaths", baseConfig);
     xmlToJson("paths", baseConfig);
-
 
     return baseConfig;
 };//}}}

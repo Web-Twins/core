@@ -30,7 +30,7 @@ o.render = function (config) {//{{{
 
 
     modelName = "default.json";
-    if (config.attributes["model"]) {
+    if (config.attributes && config.attributes["model"]) {
         modelName = config.attributes["model"];
     }
 
