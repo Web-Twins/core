@@ -23,19 +23,19 @@ o.moduleList = {
 
 o.render = function (config) {//{{{
 
-    var modelName, modelPath, templateName, templatePath, templateHtml, model,  template, moduleNode, self;
+    var modelName, modelPath, templateName, templatePath, templateHtml, model,  template, self;
 
     self = this;
-    templatePath = config.text();
-    modelNode = config.attr('model');
-    if (modelNode) {
-        modelName = modelNode.value();
-    } else {
-        modelName = "default.json";
+    templatePath = config.value;
+
+
+    modelName = "default.json";
+    if (config.attributes["model"]) {
+        modelName = config.attributes["model"];
     }
 
-    modelPath =  templatePath + "/models/" + modelName;
 
+    modelPath =  templatePath + "/models/" + modelName;
     model = this.getModel(modelPath);
     templateHtml = this.getTemplate('modules/' + templatePath);
 
@@ -134,7 +134,7 @@ o.getCssPath = function (module) {//{{{
 
 o.getModuleInfo = function (module) {//{{{
     var info = {}, modulePath, matches;
-    modulePath = module.text();
+    modulePath = module.value;
     info["modulePath"] = modulePath;
     matches = modulePath.split(/\//);
     if (matches && matches[1]) {

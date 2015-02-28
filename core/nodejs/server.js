@@ -1,7 +1,6 @@
 var express = require('express')
 var app = express()
 var php = require('phplike/module');
-var xml = require('libxmljs');
 var i18n = require('i18n');
 var language = "en";
 var less = require('less');
@@ -82,8 +81,8 @@ o.isAllowedPageConfigPath = function (path) {//{{{
  */
 o.loadConfigPages = function (req, res) {//{{{
 
-    var layoutParser;
-    var content, path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig, baseConfig;
+    var layoutParser, dom;
+    var path, html = "", pageConfig, siteConfigFilePath, siteConfig, customizedSiteConfig, baseConfig, pageDom, siteDom;
 
     // baseConfig is a global setting of a website.
     baseConfig = this.loadBaseConfig();
@@ -91,12 +90,12 @@ o.loadConfigPages = function (req, res) {//{{{
     layoutParser = new layoutParserMod(i18n, this.root, baseConfig);
     path = this.root + "/pageConfig/" + req.path;
 
-
     siteConfigFilePath = this.root + "/pageConfig/base/site.html";
     if (php.is_file(path) 
         && this.isAllowedPageConfigPath(req.path)) {
-        pageConfig = php.file_get_contents(path);
-        pageConfig = new xml.parseXml(pageConfig);
+        //pageConfig = php.file_get_contents(path);
+        pageDom = new php.DOMDocument();
+        pageCofnig = pageDom.load(path);
     }
 
     if (!php.empty(pageConfig)) {
@@ -105,11 +104,11 @@ o.loadConfigPages = function (req, res) {//{{{
             siteConfigFilePath = this.root + "/pageConfig/base/" + customizedSiteConfig;
         }
         if (php.is_file(siteConfigFilePath)) {
-            content = php.file_get_contents(siteConfigFilePath);
-            siteConfig = new xml.parseXml(content);
+            siteDom = new php.DOMDocument();
+            siteCofnig = siteDom.load(siteConfigFilePath);
         }
 
-        html = layoutParser.render(pageConfig, siteConfig);
+        html = layoutParser.render([pageDom, pageConfig], [siteDom, siteConfig]);
     }
 
     console.log('render html');

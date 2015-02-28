@@ -1,6 +1,7 @@
+var php = require('phplike/module');
 var assert = require("assert");
 var layoutParserObj = require("./../../core/nodejs/layoutParser");
-var xml = require('libxmljs');
+//var xml = require('libxmljs');
 var root = __dirname + '/../../examples/';
 var tester;
 var layoutParser;
@@ -15,43 +16,47 @@ tester = layoutParser = new layoutParserObj({}, root, baseConfig);
 
 
 describe("Test redner page html: ", function () {//{{{
-    it("render page", function () {
+
+    it("P001_1 render page", function () {
+        var dom = new php.DOMDocument();
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
 
-        var config = new xml.parseXml(page);
+        var config = dom.loadXML(page);
         var expect = "<!DOCTYPE html>\n<html>" +
                      "\n<head>\n" +
                      '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" + 
                      "</head>\n" + 
                      "</html>";
-        var result = layoutParser.render(config);
+        var result = layoutParser.render(dom);
 
         assert.equal(expect, result);
 
     });
 
-    it("render default page setting", function () {
+    it("P001_2 render default page setting", function () {
         var page = "<page><head></head></page>";
+        var dom = new php.DOMDocument();
 
-        var config = new xml.parseXml(page);
+        var config = dom.loadXML(page);
         var expect = "<!DOCTYPE html>\n<html>\n<head>\n\n</head>\n</html>"; 
-        var result = layoutParser.render(config);
-
+        var result = layoutParser.render(dom);
+        //console.log(result);
         assert.equal(expect, result);
 
     });
 
-    it("render js in bottom of body", function () {
-        var page = "<page><head></head><body><js>angular.js</js></body></page>";
+    it("P001_3 render js in bottom of body", function () {
 
-        var config = new xml.parseXml(page);
+        var page = "<page><head></head><body><js>angular.js</js></body></page>";
+        var dom = new php.DOMDocument();
+        var config = dom.loadXML(page);
         var expect = "<!DOCTYPE html>\n<html>\n<head>\n\n</head>\n" +
                      "<body>" + "\n" + 
                      "    <script src=\"angular.js\"></script>" + "\n" +
                      "</body>" + "\n" + 
                      "</html>"; 
         
-        var result = layoutParser.render(config);
+        var result = layoutParser.render(dom);
         //console.log(result);
         assert.equal(expect, result);
 
@@ -63,24 +68,26 @@ describe("Test redner page html: ", function () {//{{{
 
 describe("Test redner head html:", function () {//{{{
 
-    it("render css", function () {
+    it("P002_1 render css", function () {
+        var dom = new php.DOMDocument();
         var css = "<head><css>a.css\
                    b.css\
                   </css></head>";
-        var config = new xml.parseXml(css);
+        var config = dom.loadXML(css);
         var expect = '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" 
                      + '    <link href="b.css" rel="stylesheet" type="text/css">';
         var result = layoutParser.renderHead(config);
-
+        //console.log(result);
         assert.equal(expect, result);
 
     });
 
-    it("render js", function () {
+    it("P002_2 render js", function () {
+        var dom = new php.DOMDocument();
         var js = "<head><js>a.js\
                    b.js\
                   </js></head>";
-        var config = new xml.parseXml(js);
+        var config = dom.loadXML(js);
         var expect = '    <script src="a.js"></script>' + "\n" 
                      + '    <script src="b.js"></script>';
         var result = layoutParser.renderHead(config);
@@ -89,7 +96,8 @@ describe("Test redner head html:", function () {//{{{
 
     });
 
-    it("render js and css in any position of body", function () {
+    it("P002_3 render js and css in any position of body", function () {
+        var dom = new php.DOMDocument();
         var js = "<page><head>"+
                     "<css>head.css</css>" + 
                     "<css position='body'>body.css</css>" + 
@@ -101,7 +109,7 @@ describe("Test redner head html:", function () {//{{{
                     "<js>head.js</js>" +
                  "</head><body>test</body></page>";
 
-        var config = new xml.parseXml(js);
+        var config = dom.loadXML(js);
         var expect = '<!DOCTYPE html>' + "\n" +
                      "<html>\n" +
                      "<head>\n" +
@@ -120,14 +128,15 @@ describe("Test redner head html:", function () {//{{{
                      "    <script src=\"afterBody.js\"></script>\n" + 
                      "</html>";
  
-        var result = layoutParser.render(config);
+        var result = layoutParser.render(dom);
         //console.log(result);
         assert.equal(expect, result);
 
     });
 
 
-    it("should render body correctly", function () {
+    it("P002_4 should render body correctly", function () {
+        var dom = new php.DOMDocument();
         var body = '<body><div class="grid">'
                    +'text1' 
                    +'<div class="col-2-3">'
@@ -141,7 +150,7 @@ describe("Test redner head html:", function () {//{{{
                    +'</div></div>'
                    +'</body>';
 
-        body = new xml.parseXml(body);
+        body = dom.loadXML(body);
 
         var expect = '<div class="grid">'+ "\n"
                       + '    text1' + "\n"
@@ -166,12 +175,13 @@ describe("Test redner head html:", function () {//{{{
 
     });
 
-    it("should render module less and css in head", function () {
+    it("P002_5 should render module less and css in head", function () {
+        var dom = new php.DOMDocument();
         var page = '<page><head></head><body>'
                    + '<module model="default.json">common/header/</module>'
                    +'</body></page>';
 
-        page = new xml.parseXml(page);
+        page = dom.loadXML(page);
 
         var expect = "<!DOCTYPE html>\n<html>\n" + 
                      '<head>' + "\n\n" +
@@ -190,7 +200,7 @@ describe("Test redner head html:", function () {//{{{
 
         tester.output = 1;
         tester.enableIndent = true; 
-        var result = tester.render(page, "");
+        var result = tester.render(dom, "");
         //console.log(result);
         assert.equal(expect, result);
 
@@ -201,11 +211,14 @@ describe("Test redner head html:", function () {//{{{
 });//}}}
 
 describe("Test redner site html: ", function () {//{{{
-    it("render site css", function () {
+    it("P003_1 render site css", function () {
+        var dom = new php.DOMDocument();
+        var siteDom = new php.DOMDocument();
+
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
         var site = "<site><head><css>reset.css</css></head></site>";
-        var config = new xml.parseXml(page);
-        var siteConfig = new xml.parseXml(site);
+        var config = dom.loadXML(page);
+        var siteConfig = siteDom.loadXML(site);
 
 
         var expect = "<!DOCTYPE html>\n<html>" +
@@ -214,16 +227,19 @@ describe("Test redner site html: ", function () {//{{{
                      "\n" + '    <link href="a.css" rel="stylesheet" type="text/css">' +
                      "\n</head>" + 
                      "\n</html>";
-        var result = layoutParser.render(config, siteConfig);
+        var result = layoutParser.render(dom, siteDom);
         assert.equal(expect, result);
 
     });
 
-    it("render site js", function () {
+    it("P003_2 render site js", function () {
+        var pageDom = new php.DOMDocument();
+        var siteDom = new php.DOMDocument();
+
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
         var site = "<site><head><js>jquery.js</js></head></site>";
-        var config = new xml.parseXml(page);
-        var siteConfig = new xml.parseXml(site);
+        var config = pageDom.loadXML(page);
+        var siteConfig = siteDom.loadXML(site);
 
 
         var expect = "<!DOCTYPE html>\n<html>" +
@@ -232,17 +248,20 @@ describe("Test redner site html: ", function () {//{{{
                      '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" +
                      "</head>\n" + 
                      "</html>";
-        var result = layoutParser.render(config, siteConfig);
+        var result = layoutParser.render(pageDom, siteDom);
         //console.log(result);
         assert.equal(expect, result);
 
     });
 
-    it("Render site meta module in head.", function () {
+    it("P003_3 Render site meta module in head.", function () {
+        var pageDom = new php.DOMDocument();
+        var siteDom = new php.DOMDocument();
+
         var page = "<page output=\"htmlPage\"><head></head></page>";
         var site = "<site><head><module model=\"default.json\">common/meta</module></head></site>";
-        var config = new xml.parseXml(page);
-        var siteConfig = new xml.parseXml(site);
+        var config = pageDom.loadXML(page);
+        var siteConfig = siteDom.loadXML(site);
 
 
         var expect = "<!DOCTYPE html>\n<html>\n" +
@@ -260,17 +279,20 @@ describe("Test redner site html: ", function () {//{{{
                      '    <link href="/modules/common/meta/static/meta.css" rel="stylesheet" type="text/css">' + "\n" +
                      '</head>'  +  "\n" +
                      "</html>";
-        var result = layoutParser.render(config, siteConfig);
+        var result = layoutParser.render(pageDom, siteDom);
         //console.log(result);
         assert.equal(expect, result);
 
     });
 
-    it("Render site header and footer module in head.", function () {
+    it("P003_4 Render site header and footer module in head.", function () {
+        var pageDom = new php.DOMDocument();
+        var siteDom = new php.DOMDocument();
+ 
         var page = "<page output=\"htmlPage\"><body>pagebody</body></page>";
         var site = "<site><body><header>test</header><footer>test_footer</footer></body></site>";
-        var config = new xml.parseXml(page);
-        var siteConfig = new xml.parseXml(site);
+        var config = pageDom.loadXML(page);
+        var siteConfig = siteDom.loadXML(site);
         var layoutParser = new layoutParserObj({}, root);
         var expect = "<!DOCTYPE html>\n<html>\n" +
                      "<body>\n" +
@@ -279,7 +301,7 @@ describe("Test redner site html: ", function () {//{{{
                      '    test_footer' + "\n" + 
                      '</body>'  +  "\n" +
                      "</html>";
-        var result = layoutParser.render(config, siteConfig);
+        var result = layoutParser.render(pageDom, siteDom);
         //console.log(result);
         assert.equal(expect, result);
 

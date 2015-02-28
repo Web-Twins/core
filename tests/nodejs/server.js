@@ -1,6 +1,5 @@
 var assert = require("assert");
 var serverObj = require("./../../core/nodejs/server");
-var xml = require('libxmljs');
 var root = __dirname + '/../../examples/';
 var tester = new serverObj(root);
 

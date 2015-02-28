@@ -48,6 +48,8 @@ o.cssFile = {
     "moduleLevel": []
 };
 
+o.pageDom = "";
+o.siteDom = "";
 
 // The property to be rendered in body.
 o.bodyJs = {
@@ -61,44 +63,58 @@ o.bodyCss = {
     "bottom": []
 };//}}}
 
-o.render = function (pageConfig, siteConfig) {//{{{
+o.render = function (pageDom, siteDom) {//{{{
     var i, n;
-    var list = [], key, child, nodeName, output, root, 
-        siteBody, self, modules;
+    var list = [], key, child, nodeName, output = "", 
+        siteBody, self, modules, pageConfig, siteConfig;
+
+    this.pageDom = pageDom;
+    if (siteDom) this.siteDom = siteDom;
+    pageConfig = pageDom.json;
+    if (siteDom) siteConfig = siteDom.json;
 
     self = this;
-    root = pageConfig.root();
-    child = root.childNodes();
-    output = root.attr('output');
-    if (output) output = output.value();
+    if (pageConfig.childNodes) child = pageConfig.childNodes;
+
+    if (pageConfig.attributes 
+        && pageConfig.attributes['output']
+       ) {
+        output = pageConfig.attributes['output'];
+    } 
+
     this.output = this.getOutputType(output);
 
-    n = child.length;
     switch (this.output) {
         case this.OUTPUT_HTML_PAGE:
             list.push("<!DOCTYPE html>\n<html>");
             break;
     }
 
+    if (child) {
+        n = child.length;
+    } else {
+        n = 0;
+    }
+
     for (i = 0; i< n; i++) {
-        nodeName = child[i].name();
+        nodeName = child[i].name;
         nodeName = nodeName.toLowerCase();
         switch (nodeName) {
             case 'head':
                 if (this.output !== this.OUTPUT_HTML_PAGE) continue;
                 list.push('<head>');
                 if (siteConfig) {
-                    var siteHead = siteConfig.get("//head");
-                    if (siteHead) {
-                        list.push(this.renderHead(siteHead));
+                    var siteHead = siteDom.getElementsByTagName("head");
+                    if (siteHead && siteHead[0]) {
+                        list.push(this.renderHead(siteHead[0]));
                     }
                 }
                 list.push(this.renderHead(child[i]));
 
                 //render Module Level Css in site.html
-                this.getModuleCss(siteConfig);
+                this.getModuleCss(this.siteDom, siteConfig);
                 // render Module Level css in page.html
-                moduleCss = this.getModuleCss(pageConfig);
+                moduleCss = this.getModuleCss(this.pageDom, pageConfig);
                 var cssCount = moduleCss.length;
                 for (var j = 0; j < cssCount; j++) {
                     if (!moduleCss[j] || !moduleCss[j]['urlPath']) continue;
@@ -116,46 +132,49 @@ o.render = function (pageConfig, siteConfig) {//{{{
                 }
 
                 if (siteConfig) {
-                    siteBody = siteConfig.get("//header");
-                    if (siteBody) {
-                        list.push(this.renderBody(siteBody));
+                    siteBody = siteDom.getElementsByTagName("header");
+                    if (siteBody && siteBody[0]) {
+                        siteBody[0].value = siteBody[0].nodeValue;
+                        list.push(this.renderBody(siteBody[0]));
                     }
                 }
 
                 //render css in top body
                 if (this.bodyCss['top']) {
                     this.bodyCss['top'].forEach(function (c) {
-                        list.push(self.renderCss(c.text()));
+                        list.push(self.renderCss(c.value));
                     });
                 }
 
                 //render js in top body
                 if (this.bodyJs['top']) {
                     this.bodyJs['top'].forEach(function (c) {
-                        list.push(self.renderJs(c.text()));
+                        list.push(self.renderJs(c.value));
                     });
                 }
 
                 list.push(this.renderBody(child[i]));
 
                 if (siteConfig) {
-                    siteBody = siteConfig.get("//footer");
-                    if (siteBody) {
-                        list.push(this.renderBody(siteBody));
+                    siteBody = siteDom.getElementsByTagName("footer");
+                    if (siteBody && siteBody[0]) {
+                        // siteBody[0] is a DOMElement which only has the key nodeValue.
+                        siteBody[0].value = siteBody[0].nodeValue;
+                        list.push(this.renderBody(siteBody[0]));
                     }
                 }
 
                 //render css in bottom of body
                 if (this.bodyCss['bottom']) {
                     this.bodyCss['bottom'].forEach(function (c) {
-                        list.push(self.renderCss(c.text()));
+                        list.push(self.renderCss(c.value));
                     });
                 }
 
                 //render js in bottom of body
                 if (this.bodyJs['bottom']) {
                     this.bodyJs['bottom'].forEach(function (c) {
-                        list.push(self.renderJs(c.text()));
+                        list.push(self.renderJs(c.value));
                     });
                 }
 
@@ -168,7 +187,7 @@ o.render = function (pageConfig, siteConfig) {//{{{
                 //render js after body
                 if (this.bodyJs['after']) {
                     this.bodyJs['after'].forEach(function (c) {
-                        list.push(self.renderJs(c.text()));
+                        list.push(self.renderJs(c.value));
                     });
                 }
 
@@ -191,16 +210,21 @@ o.render = function (pageConfig, siteConfig) {//{{{
 o.renderHead = function (config) {//{{{
     var i, n;
     var list = [], key, child, nodeName, moduleHtml, position, moduleCss;
-    child = config.childNodes();
-    n = child.length;
+
+    if (config.childNodes) {
+        child = config.childNodes;
+        n = child.length;
+    }
+
     for (i = 0; i< n; i++) {
-        nodeName = child[i].name();
+        nodeName = child[i].name;
         nodeName = nodeName.toLowerCase();
+        position = "";
         switch (nodeName) {
             case 'css':
-                position = child[i].attr("position");
-                if (position) position = position.value();
-
+                if (child[i].attributes && child[i].attributes["position"]) {
+                    position = child[i].attributes["position"];
+                }
                 if (position && position.search(/body/i) !== -1) {
                     if (position === "bottomOfBody") {
                         this.bodyCss['bottom'].push(child[i]);
@@ -208,14 +232,14 @@ o.renderHead = function (config) {//{{{
                         this.bodyCss['top'].push(child[i]);
                     }
                 } else {
-                    list.push(this.renderCss(child[i].text()));
+                    list.push(this.renderCss(child[i].value));
                 }
 
                 break;
             case 'js':
-                position = child[i].attr("position");
-                if (position) position = position.value();
-
+                if (child[i].attributes && child[i].attributes["position"]) {
+                    position = child[i].attributes["position"];
+                }
                 if (position && position.search(/body/i) !== -1) {
                     if (position === "topOfBody") {
                         this.bodyJs['top'].push(child[i]);
@@ -225,7 +249,7 @@ o.renderHead = function (config) {//{{{
                         this.bodyJs['bottom'].push(child[i]);
                     }
                 } else {
-                    list.push(this.renderJs(child[i].text()));
+                    list.push(this.renderJs(child[i].value));
                 }
                 break;
             case 'module':
@@ -289,22 +313,30 @@ o.renderJs = function (jsText) {//{{{
 };//}}}
 
 o.renderBody = function (bodyConfig, indent) {//{{{
-    var i, n;
+    var i, n = 0;
     var key, list = [], nodeName, attrs = "",
-        moduleHtml;
-    var child = bodyConfig.childNodes();
+        moduleHtml, child;
+
     if (typeof(indent) === "undefined") indent = "    ";
 
-    n = child.length;
+    if (bodyConfig.childNodes) {
+        child = bodyConfig.childNodes;
+        n = child.length;
+    } else if (bodyConfig.value) {
+        list.push(indent + bodyConfig.value);
+    } 
+
+
+
     for (i = 0; i< n; i++) {
-        nodeName = child[i].name();
+        nodeName = child[i].name;
         nodeName = nodeName.toLowerCase();
 
         if (!nodeName) continue;
 
         switch (nodeName) {
             case 'text':
-                list.push(indent + child[i].text());
+                list.push(indent + child[i].value);
                 break;
             case "module":
                 moduleHtml = this.module.render(child[i]);
@@ -312,11 +344,11 @@ o.renderBody = function (bodyConfig, indent) {//{{{
                 list.push(moduleHtml);
                 break;
             case 'js':
-                list.push(this.renderJs(child[i].text()));
+                list.push(this.renderJs(child[i].value));
                 break;
 
             default:
-                attrs = this.attributeToString(child[i].attrs());
+                attrs = this.attributeToString(child[i].attributes);
                 list.push(indent + '<' + nodeName + attrs + '>');
                 list.push(this.renderBody(child[i], indent + "    "));
                 list.push(indent + '</' + nodeName + '>');
@@ -351,12 +383,12 @@ o.getFinalStaticUrl = function (path, type) {//{{{
  * convert attributes of element to string.
  */
 o.attributeToString = function (attrs) {//{{{
-    var html = "", i ,n, attr;
-    n = attrs.length;
-    for (i = 0; i < n; i++) {
-        attr = attrs[i];
+    var html = "", name, value;
+    for (name in attrs) {
+        if (!name) continue;
+        value = attrs[name];
         html += " ";
-        html += attr.name() + "=\"" + attr.value() + "\"";
+        html += name + "=\"" + value + "\"";
     }
     return html;
 };//}}}
@@ -376,18 +408,18 @@ o.getOutputType = function (type) {//{{{
     return this.OUTPUT_HTML_PAGE;
 };//}}}
 
-o.getModuleCss = function (config) {//{{{
+o.getModuleCss = function (dom, config) {//{{{
     var i, n;
     var head, body, css, moduleCss;
 
     if (!config) return [];
-    head = config.get('//head');
-    if (head) {
-        children = head.childNodes();
-        n = children.length;
+    head = dom.getElementsByTagName('head');
+    if (head && head[0] && head[0].childNodes) {
+        childNodes = head[0].childNodes;
+        n = childNodes.length;
         for (i = 0; i < n; i++) {
-            module = children[i];
-            if (module.name() === "module") {
+            module = childNodes[i];
+            if (module.name === "module") {
                 moduleCss = this.module.getCssPath(module);
                 if (!this.isExistStaticFile(moduleCss.id, this.cssFile.moduleLevel)) {
                     this.cssFile.moduleLevel.push(moduleCss);
@@ -396,9 +428,9 @@ o.getModuleCss = function (config) {//{{{
         }
     }
 
-    body = config.get('//body');
-    if (body) {
-        this.getModuleCssRecursive(body, this.cssFile.moduleLevel);
+    body = dom.getElementsByTagName('body');
+    if (body && body[0]) {
+        this.getModuleCssRecursive(body[0], this.cssFile.moduleLevel);
     }
     return this.cssFile.moduleLevel; 
 };//}}}
@@ -409,14 +441,16 @@ o.getModuleCss = function (config) {//{{{
  * @param &result
  */
 o.getModuleCssRecursive = function (body, result) {//{{{
-    var i, n;
-    var children, module, name, moduleCss;
-    children = body.childNodes();
-    n = children.length;
+    var i, n = 0;
+    var childNodes, module, name, moduleCss;
 
+    if (body.childNodes) {
+        childNodes = body.childNodes;
+        n = childNodes.length;
+    }
     for (i = 0; i < n; i++) {
-        module = children[i];
-        name = module.name();
+        module = childNodes[i];
+        name = module.name;
         if (!module) continue;
         if (name === 'text') continue;
         if (name === "module") {
