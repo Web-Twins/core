@@ -38,3 +38,17 @@ describe("Test: Compile less", function () {
 });
 
 
+describe("Test: loadConfigPages", function () {
+
+    it("simple", function () {
+        var req = baseReq;
+        req.path = "/common/homepage.html"; 
+        var result = tester.loadConfigPages(req, baseRes);
+        //console.log(result);
+
+    });
+
+});
+
+
+
