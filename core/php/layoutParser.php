@@ -15,8 +15,8 @@ class layoutParser {
     public $siteDom;
     
     const OUTPUT_HTML_PAGE = 1;
-  //  const static $OUTPUT_JSON = 2;
-  //  const static $OUTPUT_TEXT = 3;
+    const OUTPUT_JSON = 2;
+    const OUTPUT_TEXT = 3;
     
     public function __construct($i18n, $root, $baseConfig) {/*{{{*/
         $this->context = array();
@@ -93,12 +93,12 @@ class layoutParser {
         if ($this->enableIndent) {
             $indent = "    ";
         }
-        $jsList = preg_match('/[\r\n\s]+/', $jsList);
+        $jsList = preg_split('/[\r\n\s]+/', $jsText);
 
         $n = sizeof($jsList);
         for ($i = 0; $i < $n; $i++) {
             $jsUrl = $jsList[$i];
-            if (!jsUrl) continue;
+            if (empty($jsUrl)) continue;
             $finalJsUrl = $this->getFinalStaticUrl($jsUrl, 'js');
             $list[] = $indent . '<script src="' . $finalJsUrl . '"></script>';
         }
@@ -118,6 +118,60 @@ class layoutParser {
 
         $url .= $path;
         return $url;
+    }//}}}
+
+    public function renderHead($config) {//{{{
+        $list = array();
+        $child = $config->childNodes; 
+        $n = $child->length;
+        for ($i = 0; $i < $n; $i++) {
+            $node = $child->item($i);
+            $nodeName = $node->nodeName;
+            $nodeName = strtolower($nodeName);
+            $position = "";
+            switch ($nodeName) {
+                case 'css':
+                    if ($node->hasAttribute("position")) {
+                        $position = $node->getAttibute("position");
+                    }
+                    if (!empty($position) && preg_replace('/body/i', $position)) {
+                        if ($position === "bottomOfBody") {
+                            $this->bodyCss['bottom'][] = node;
+                        } else {
+                            $this->bodyCss['top'][] = node;
+                        }
+                    } else {
+                        $list[] = $this->renderCss($node->nodeValue);
+                    }
+
+                    break;
+                case 'js':
+                    if ($node->hasAttribute("position")) {
+                        $position = $node->getAttribute("position");
+                    }
+
+                    if ($position && preg_match('/body/i', $position)) {
+                        if ($position === "topOfBody") {
+                            $this->bodyJs['top'][] = node;
+                        } else if ($position === "afterBody") {
+                            $this->bodyJs['after'][] = $node;
+                        } else {
+                            $this->bodyJs['bottom'][] = $node;
+                        }
+                    } else {
+                        $list[] = $this->renderJs($node->nodeValue);
+                    }
+                    break;
+                case 'module':
+                    $moduleHtml = $this->module->render($node);
+                    if ($this->enableIndent) $moduleHtml = preg_replace('/^([\s]*<)/mg', "    $1", $moduleHtml);
+                    $list[] = $moduleHtml;
+
+                    break;
+
+            }
+        }
+        return implode("\n", $list);
     }//}}}
 
 }
@@ -268,62 +322,6 @@ class layoutParser {
 //};//}}}
 //
 //
-//o.renderHead = function (config) {//{{{
-//    var i, n;
-//    var list = [], key, child, nodeName, moduleHtml, position, moduleCss;
-//
-//    if (config.childNodes) {
-//        child = config.childNodes;
-//        n = child.length;
-//    }
-//
-//    for (i = 0; i< n; i++) {
-//        nodeName = child[i].name;
-//        nodeName = nodeName.toLowerCase();
-//        position = "";
-//        switch (nodeName) {
-//            case 'css':
-//                if (child[i].attributes && child[i].attributes["position"]) {
-//                    position = child[i].attributes["position"];
-//                }
-//                if (position && position.search(/body/i) !== -1) {
-//                    if (position === "bottomOfBody") {
-//                        this.bodyCss['bottom'].push(child[i]);
-//                    } else {
-//                        this.bodyCss['top'].push(child[i]);
-//                    }
-//                } else {
-//                    list.push(this.renderCss(child[i].value));
-//                }
-//
-//                break;
-//            case 'js':
-//                if (child[i].attributes && child[i].attributes["position"]) {
-//                    position = child[i].attributes["position"];
-//                }
-//                if (position && position.search(/body/i) !== -1) {
-//                    if (position === "topOfBody") {
-//                        this.bodyJs['top'].push(child[i]);
-//                    } else if (position === "afterBody") {
-//                        this.bodyJs['after'].push(child[i]); 
-//                    } else {
-//                        this.bodyJs['bottom'].push(child[i]);
-//                    }
-//                } else {
-//                    list.push(this.renderJs(child[i].value));
-//                }
-//                break;
-//            case 'module':
-//                moduleHtml = this.module.render(child[i]);
-//                if (this.enableIndent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, "    $1");
-//                list.push(moduleHtml);
-//
-//                break;
-//
-//        }
-//    }
-//    return list.join("\n");
-//};//}}}
 //
 //
 //
