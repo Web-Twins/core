@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/module.php';
 
 class layoutParser {
     public $i18n; // Language Object
@@ -173,6 +173,43 @@ class layoutParser {
         }
         return implode("\n", $list);
     }//}}}
+
+    public function getModuleCss($dom, $config) {//{{{
+        //var head, body, css, moduleCss;
+
+        if (empty($config)) return array();
+        $head = $dom->getElementsByTagName('head');
+        if ($head && $head->length > 0 && $head->item(0)->childNodes) {
+
+            $child = $head->item(0)->childNodes;
+            $n = $child->length;
+            for ($i = 0; $i < $n; $i++) {
+                $module = $child->item($i);
+                if ($module->nodeName === "module") {
+                    $moduleCss = $this->module->getCssPath($module);
+                    if (!$this->isExistStaticFile($moduleCss->id, $this->cssFile['moduleLevel'])) {
+                        $this->cssFile['moduleLevel'][] = $moduleCss;
+                    }
+                }
+            }
+        }
+
+        $body = $dom->getElementsByTagName('body');
+        if ($body && $body->length > 0) {
+            $this->getModuleCssRecursive($body->item(0), $this->cssFile['moduleLevel']);
+        }
+        return $this->cssFile['moduleLevel']; 
+    }//}}}
+
+    public function isExistStaticFile($id, $stack) {
+        $n = count($stack);
+        for ($i = 0; $i < $n; $i++) {
+            if ($stack[$i]['id'] === $id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
 
@@ -407,32 +444,6 @@ class layoutParser {
 //    return this.OUTPUT_HTML_PAGE;
 //};//}}}
 //
-//o.getModuleCss = function (dom, config) {//{{{
-//    var i, n;
-//    var head, body, css, moduleCss;
-//
-//    if (!config) return [];
-//    head = dom.getElementsByTagName('head');
-//    if (head && head[0] && head[0].childNodes) {
-//        childNodes = head[0].childNodes;
-//        n = childNodes.length;
-//        for (i = 0; i < n; i++) {
-//            module = childNodes[i];
-//            if (module.name === "module") {
-//                moduleCss = this.module.getCssPath(module);
-//                if (!this.isExistStaticFile(moduleCss.id, this.cssFile.moduleLevel)) {
-//                    this.cssFile.moduleLevel.push(moduleCss);
-//                }
-//            }
-//        }
-//    }
-//
-//    body = dom.getElementsByTagName('body');
-//    if (body && body[0]) {
-//        this.getModuleCssRecursive(body[0], this.cssFile.moduleLevel);
-//    }
-//    return this.cssFile.moduleLevel; 
-//};//}}}
 //
 ///**
 // * get the css file recursively from page config
@@ -464,15 +475,5 @@ class layoutParser {
 //
 //}; //}}}
 //
-//o.isExistStaticFile = function (id, stack) {
-//    var i, n;
-//    n = stack.length;
-//    for (i = 0; i< n; i++) {
-//        if (stack[i].id === id) {
-//            return true;
-//        }
-//    }
-//    return false;
-//};
 //
 

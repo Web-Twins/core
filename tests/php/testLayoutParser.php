@@ -13,7 +13,7 @@ class testLayoutParser extends PHPUnit_Framework_TestCase {
         $this->tester = null;
     }
 
-    public function testRenderCss() {
+    public function testRenderCss() {/*{{{*/
         $text = <<<HTML
         a.css
         b.css
@@ -27,7 +27,7 @@ HTML;
         $result = $this->tester->renderCss($text);
         //print_r($result);
         $this->assertEquals($expect, $result, '');
-    }
+    }/*}}}*/
 
     /**
      * @dataProvider provider_testRenderHead
@@ -41,7 +41,7 @@ HTML;
         $this->assertEquals($expect, $result, '');
     }/*}}}*/
 
-    public function provider_testRenderHead() {
+    public function provider_testRenderHead() {/*{{{*/
         $data = array();
 
         // Simple test
@@ -95,7 +95,7 @@ HTML;
         );
 
         return $data;
-    }
+    }/*}}}*/
 
 
 }
