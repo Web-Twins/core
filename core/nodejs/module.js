@@ -18,7 +18,7 @@ o.templateEngine = "handlebars";
 o.templateBasePath = "";
 
 o.moduleList = {
-    yaml: ""
+    YAML: ""
 };
 
 o.render = function (config) {//{{{
@@ -140,7 +140,8 @@ o.getModuleInfo = function (module) {//{{{
     if (matches && matches[1]) {
         info["moduleName"] = matches[1];
     } else {
-        util.log('ERROR_MODULE_MISSING_NAME','error');
+        info["moduleName"] = modulePath;
+        //util.log('ERROR_MODULE_MISSING_NAME','error');
     }
     info["moduleFullPath"] = this.templateBasePath + '/' + info.modulePath;
     return info;
