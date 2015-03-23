@@ -1,5 +1,5 @@
 <?php
-
+require __DIR__ . "/handlebar/template.php";
 
 class moduleObj {
     public $root;
@@ -12,7 +12,11 @@ class moduleObj {
         $this->root = $root;
         $this->templateBasePath = $root . '/modules';
         $this->context = $context;
-
+        $cachePath = __DIR__ . '/../../cache';
+        if (!is_dir($cachePath)) {
+            mkdir($cachePath);
+        }
+        $this->handlebar = new handlebar($cachePath);
     }
 
     public function getModuleInfo($module) {//{{{
@@ -76,13 +80,14 @@ class moduleObj {
                 $fullPath = $this->root . '/' . $path . '/views/' . $name . ".hb.html";
                 break;
         }
-
         //error_log("Template full path = " + fullPath);
         if (!is_file($fullPath)) {
             error_log($fullPath . " is not exist.");
         }
-        $html = file_get_contents($fullPath);
-        return $html;
+
+        return $fullPath;
+        //$html = file_get_contents($fullPath);
+        //return $html;
 
     }//}}}
 
@@ -107,39 +112,23 @@ class moduleObj {
         return $css;
     }//}}}
 
-    public function render($config) {//{{{
+    public function render($element) {//{{{
 
-        //var modelName, modelPath, templateName, templatePath, templateHtml, model,  template, self;
-
-        $self = $this;
-        $templatePath = $config.nodeValue;
+        $templatePath = $element->nodeValue;
 
         $modelName = "default.json";
-        if (config.attributes && config.attributes["model"]) {
-            $modelName = config.attributes["model"];
+        if ($element->hasAttribute("model")) {
+            $modelName = $element->getAttribute("model");
         }
-
 
         $modelPath =  $templatePath . "/models/" . $modelName;
         $model = $this->getModel($modelPath);
-        $templateHtml = $this->getTemplate('modules/' . $templatePath);
+        $templatePath = $this->getTemplate('modules/' . $templatePath);
 
-        //lightncandy
-        $templateHtml = $templateHtml.replace(/\{\{[\s]?\>[\s]+([^\}]+)\}\}/m, function (str, fileName) {
-            var path;
-            path = self.templateBasePath + '/' + templatePath + "/views/" + fileName;
-            if (php.is_file(path)) {
-                return php.file_get_contents(path);
-            }
 
-            return "File " + str + "Not Found";
-        });
+        return $this->handlebar->render($templatePath, $model);
 
-        template = Handlebars.compile(templateHtml);
-
-        return template(model);
-
-    };//}}}
+    }//}}}
 
 
 }

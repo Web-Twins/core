@@ -4,7 +4,7 @@ require_once __DIR__ . "/../../core/php/module.php";
 
 class testModule extends PHPUnit_Framework_TestCase {
 
-    public function setUp() {
+    public function setUp() {/*{{{*/
         $urlPaths = array(
                      'template' => __DIR__,
                     );
@@ -15,7 +15,7 @@ class testModule extends PHPUnit_Framework_TestCase {
                    );
         
         $this->tester = new moduleObj("data", $context);
-    }
+    }/*}}}*/
 
 
     public function tearDown() {
@@ -86,7 +86,7 @@ class testModule extends PHPUnit_Framework_TestCase {
         $data = array();
         $data[] = array(
                    "modules/test",
-                   "<div>test</div>\n",
+                   "data/modules/test/views/test.hb.html",
                   );
         return $data;
     }/*}}}*/
@@ -98,7 +98,7 @@ class testModule extends PHPUnit_Framework_TestCase {
     public function testGetTemplate($file, $expect) {/*{{{*/
 
         $result = $this->tester->getTemplate($file);
-        print_r($result);
+        //print_r($result);
         $this->assertEquals($expect, $result, '');
 
     }/*}}}*/
@@ -132,6 +132,33 @@ class testModule extends PHPUnit_Framework_TestCase {
     public function testGetCssPath($module, $expect) {/*{{{*/
 
         $result = $this->tester->getCssPath($module);
+        //print_r($result);
+        $this->assertEquals($expect, $result, '');
+
+    }/*}}}*/
+
+    public function providerRender() {/*{{{*/
+        $data = array();
+        $data[] = array(
+                   '<module model="test.json">test</module>',
+                   '<div>' . "\n" . 
+                   '    <h1>test</h1>'. "\n" .
+                   '</div>' . "\n"
+                    ,
+                  );
+
+
+        return $data;
+    }/*}}}*/
+
+    /**
+     * @dataProvider providerRender
+     */
+    public function testRender($moduleHtml, $expect) {/*{{{*/
+        $dom = new DOMDocument();
+        $dom->loadXML($moduleHtml);
+        $module = $dom->getElementsByTagName("module");
+        $result = $this->tester->render($module->item(0));
         //print_r($result);
         $this->assertEquals($expect, $result, '');
 
