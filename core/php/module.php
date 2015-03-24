@@ -86,8 +86,6 @@ class moduleObj {
         }
 
         return $fullPath;
-        //$html = file_get_contents($fullPath);
-        //return $html;
 
     }//}}}
 

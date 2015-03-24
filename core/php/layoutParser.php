@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/module.php';
+class_exists('moduleObj ') || require __DIR__ . '/module.php';
 
 class layoutParser {
     public $i18n; // Language Object
