@@ -23,6 +23,7 @@ The framework will give what to you
 -----------------------------------
 
 * MVC: A MVC platform  for front-end and back-end engineers.
+* Modularization: Modularize the website pages. 
 * Support Nodejs and PHP. You can use Nodejs or PHP to build a MVC website, also you can use both of them if you want.
 * Shorten the time of program integration.
 * To easily simulate any situation which end-user will meet and quickly to find a root cause.
