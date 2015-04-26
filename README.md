@@ -16,8 +16,8 @@ This framework want to keep the development more simple.
 All Frontend engineer should do is to modify the templates,css,javascript and commit, then everything will be finished. Backend engineer do not need to spend any time integrating templates. This will be a perfect way for developing a website.
 
 
-Develop information of web-twins
-============================
+Infrastruction Design of web-twins
+===============================
 
 Directory Structure
 -------------------
@@ -35,7 +35,7 @@ Directory Structure
 layoutParser.js: <br/>
 This object support to parse the XML config of page then render the result of HTML.
 
-The following are the fearutes of layouerParser:<br />
+The following are the features of layouerParser:<br />
 * Parse the XML config. We have two kind of XML config, one is the definition of pages, another is the definietion of whole website.
 * Render CSS on the head and footer. Also directly compile the less file.
 * Render JavaScript on the head and footer.
