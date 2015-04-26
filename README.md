@@ -33,13 +33,20 @@ Directory Structure
 </pre>
 
 layoutParser.js: <br/>
+This object support to parse the XML config of page then render the result of HTML.
 
+The following are the fearutes of layouerParser:<br />
+* Parse the XML config. We have two kind of XML config, one is the definition of pages, another is the definietion of whole website.
+* Render CSS on the head and footer. Also directly compile the less file.
+* Render JavaScript on the head and footer.
+* Render HTML body.
+* Redner Module HTML by calling module object render.
+* Automatically Combine the CSS and JavaScript file list.
 
 module.js: <br />
+This object support to parse the tag module then render the module's HTML.
 
 
-server
-util
 
 
 Attention for development!
