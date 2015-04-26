@@ -1,5 +1,5 @@
-The core program of Web-Twins
-==========================
+The core source code of Web-Twins
+=============================
  
 
 Travis CI status: [![Unit testing](https://travis-ci.org/Web-Twins/core.png?branch=master)](https://travis-ci.org/Web-Twins/core) [![Coverage Status](https://coveralls.io/repos/Web-Twins/core/badge.png?branch=master)](https://coveralls.io/r/Web-Twins/core?branch=master)
@@ -11,9 +11,24 @@ Travis CI status: [![Unit testing](https://travis-ci.org/Web-Twins/core.png?bran
 Purpose
 -------
 
-Make development simple.
+This framework want to keep the development more simple.
 
-All Frontend engineer should do is to edit the templates,css,javascript and commit, then everything is finished. Backend engineer do not need to spend time integrating templates. This will be a perfect way to develop a website.
+All Frontend engineer should do is to modify the templates,css,javascript and commit, then everything will be finished. Backend engineer do not need to spend any time integrating templates. This will be a perfect way for developing a website.
+
+
+Develop information of web-twins
+============================
+
+Directory Structure
+-------------------
+| - core
+| -- nodejs
+| ---- layoutParser.js
+| ---- module.js
+| ---- server.js
+| ---- util.js
+| -- php
+| - tests
 
 
 
