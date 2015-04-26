@@ -27,6 +27,8 @@ The framework will give what to you
 * Support Nodejs and PHP. You can use Nodejs or PHP to build a MVC website, also you can use both of them if you want.
 * Shorten the time of program integration.
 * To easily simulate any situation which end-user will meet and quickly to find a root cause.
+* Support Desktop and Mobile web.
+* Switch between template mode and website mode.
 
 
 Directory Structure
@@ -54,7 +56,7 @@ The following are the features of layouerParser:<br />
 * Automatically Combine the CSS and JavaScript file list.
 
 module.js: <br />
-This object support to parse the tag module then render the module's HTML.
+This object support to parse the tag module then render the module's HTML. A module is a little like the MVC structure. But it includes the view and model without controller. We could define multi model for template mode development. The format of model is a JSON or YAML. The development of view is a handlebar template, The module.js can compile the templates and parse the models and  combine this two kind of data to become a HTML. In the future, We will support more kind of templates.
 
 
 
