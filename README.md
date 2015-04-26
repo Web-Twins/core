@@ -16,8 +16,17 @@ This framework want to keep the development more simple.
 All Frontend engineer should do is to modify the templates,css,javascript and commit, then everything will be finished. Backend engineer do not need to spend any time integrating templates. This will be a perfect way for developing a website.
 
 
-Infrastruction Design of web-twins
-===============================
+Infrastructure Design of web-twins
+==================================
+
+The framework will give what to you
+-----------------------------------
+
+* MVC: A MVC platform  for front-end and back-end engineers.
+* Support Nodejs and PHP. You can use Nodejs or PHP to build a MVC website, also you can use both of them if you want.
+* Shorten the time of program integration.
+* To easily simulate any situation which end-user will meet and quickly to find a root cause.
+
 
 Directory Structure
 -------------------
