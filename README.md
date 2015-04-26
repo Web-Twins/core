@@ -21,6 +21,7 @@ Develop information of web-twins
 
 Directory Structure
 -------------------
+<pre>
 | - core
 | -- nodejs
 | ---- layoutParser.js
@@ -29,7 +30,7 @@ Directory Structure
 | ---- util.js
 | -- php
 | - tests
-
+</pre>
 
 
 Attention for development!
