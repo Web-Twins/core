@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . "/lightncandy.php";
+class_exists('LightnCandy') || require __DIR__ . "/lightncandy.php";
 
 class handlebar {
     public $tmpDir;

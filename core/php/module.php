@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . "/handlebar/template.php";
+class_exists('handlebar ') || require __DIR__ . "/handlebar/template.php";
 
 class moduleObj {
     public $root;
