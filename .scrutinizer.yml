@@ -7,7 +7,7 @@ build:
                 command: 'phpunit tests/php/* --coverage-clover=results'
                 coverage:
                     file: 'results'
-                    format: 'php-clover
+                    format: 'php-clover'
 filter:
     excluded_paths: [tests/*, examples/*, core/nodejs/*, core/php/handlebar/*]
 
