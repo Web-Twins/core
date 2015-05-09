@@ -4,6 +4,8 @@ build:
     tests:
         override:
             -
+                command: 'mkdir results'
+            -
                 command: 'phpunit tests/php/* --coverage-clover=results'
                 coverage:
                     file: 'results'
