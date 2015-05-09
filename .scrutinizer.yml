@@ -94,12 +94,12 @@ checks:
         no_debug_code: true
 
 tools:
-    external_code_coverage: true
-    php_code_coverage: true
+    external_code_coverage: false
+    php_code_coverage: false
     php_cs_fixer: true
     php_code_sniffer: true
     php_cpd: true
-    php_hhvm: true
+    php_hhvm: false
     php_mess_detector: true
     php_analyzer: true
     php_pdepend: true
