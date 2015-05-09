@@ -4,9 +4,9 @@ build:
     tests:
         override:
             -
-                command: 'phpunit tests/php/* --coverage-clover=tests'
+                command: 'phpunit tests/php/* --coverage-clover=coverage.clover'
                 coverage:
-                    file: 'tests'
+                    file: 'coverage.clover'
                     format: 'php-clover'
 filter:
     excluded_paths: [tests/*, examples/*, core/nodejs/*, core/php/handlebar/*]
