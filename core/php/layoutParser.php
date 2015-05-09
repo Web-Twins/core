@@ -50,6 +50,87 @@ class layoutParser {
         //$this->module = new moduleMod($root, $this->context);
     }/*}}}*/
 
+    public function attributeToString($attrs) {//{{{
+        $html = array();
+        if (empty($attrs)) return "";
+
+        foreach ($attrs as $name => $val) {
+            if (empty($name)) continue;
+            $html[] = $name . "=\"" . $val . "\"";
+
+        }
+
+        return implode(" ", $html);
+    }//}}}
+
+    public function getOutputType($type) {//{{{
+        $type = strtolower($type);
+        switch ($type) {
+            case 'htmlpage':
+                return self::OUTPUT_HTML_PAGE;
+                break;
+            case 'json':
+                return self::OUTPUT_JSON;
+                break;
+            case 'text':
+                return self::OUTPUT_TEXT;
+                break;
+        };
+        return self::OUTPUT_HTML_PAGE;
+    }//}}}
+
+    public function getFinalStaticUrl($path, $type) {//{{{
+        $url = "";
+        if (strpos($path, 'http') === 0) {
+            return $path;
+        }
+        if ($this->baseConfig['urlPaths']
+            && $this->baseConfig['urlPaths'][$type]
+        ) {
+            $url = $this->baseConfig['urlPaths'][$type];
+        }
+
+        $url .= $path;
+        return $url;
+    }//}}}
+
+    public function getModuleCss($dom, $config) {//{{{
+        //var head, body, css, moduleCss;
+
+        if (empty($config)) return array();
+        $head = $dom->getElementsByTagName('head');
+        if ($head && $head->length > 0 && $head->item(0)->childNodes) {
+
+            $child = $head->item(0)->childNodes;
+            $n = $child->length;
+            for ($i = 0; $i < $n; $i++) {
+                $module = $child->item($i);
+                if ($module->nodeName === "module") {
+                    $moduleCss = $this->module->getCssPath($module);
+                    if (!$this->isExistStaticFile($moduleCss->id, $this->cssFile['moduleLevel'])) {
+                        $this->cssFile['moduleLevel'][] = $moduleCss;
+                    }
+                }
+            }
+        }
+
+        $body = $dom->getElementsByTagName('body');
+        if ($body && $body->length > 0) {
+            $this->getModuleCssRecursive($body->item(0), $this->cssFile['moduleLevel']);
+        }
+        return $this->cssFile['moduleLevel']; 
+    }//}}}
+
+    public function isExistStaticFile($id, $stack) {/*{{{*/
+        $n = count($stack);
+        for ($i = 0; $i < $n; $i++) {
+            if ($stack[$i]['id'] === $id) {
+                return true;
+            }
+        }
+        return false;
+    }/*}}}*/
+
     /**
      *
      * @param isFinalPath css url path is already final path, do not appent or prepend any text.
@@ -105,21 +186,6 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
-    public function getFinalStaticUrl($path, $type) {//{{{
-        $url = "";
-        if (strpos($path, 'http') === 0) {
-            return $path;
-        }
-        if ($this->baseConfig['urlPaths']
-            && $this->baseConfig['urlPaths'][$type]
-        ) {
-            $url = $this->baseConfig['urlPaths'][$type];
-        }
-
-        $url .= $path;
-        return $url;
-    }//}}}
-
     public function renderHead($config) {//{{{
         $list = array();
         $child = $config->childNodes; 
@@ -173,44 +239,6 @@ class layoutParser {
         }
         return implode("\n", $list);
     }//}}}
-
-    public function getModuleCss($dom, $config) {//{{{
-        //var head, body, css, moduleCss;
-
-        if (empty($config)) return array();
-        $head = $dom->getElementsByTagName('head');
-        if ($head && $head->length > 0 && $head->item(0)->childNodes) {
-
-            $child = $head->item(0)->childNodes;
-            $n = $child->length;
-            for ($i = 0; $i < $n; $i++) {
-                $module = $child->item($i);
-                if ($module->nodeName === "module") {
-                    $moduleCss = $this->module->getCssPath($module);
-                    if (!$this->isExistStaticFile($moduleCss->id, $this->cssFile['moduleLevel'])) {
-                        $this->cssFile['moduleLevel'][] = $moduleCss;
-                    }
-                }
-            }
-        }
-
-        $body = $dom->getElementsByTagName('body');
-        if ($body && $body->length > 0) {
-            $this->getModuleCssRecursive($body->item(0), $this->cssFile['moduleLevel']);
-        }
-        return $this->cssFile['moduleLevel']; 
-    }//}}}
-
-    public function isExistStaticFile($id, $stack) {
-        $n = count($stack);
-        for ($i = 0; $i < $n; $i++) {
-            if ($stack[$i]['id'] === $id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
 
 
@@ -418,31 +446,7 @@ class layoutParser {
 ///**
 // * convert attributes of element to string.
 // */
-//o.attributeToString = function (attrs) {//{{{
-//    var html = "", name, value;
-//    for (name in attrs) {
-//        if (!name) continue;
-//        value = attrs[name];
-//        html += " ";
-//        html += name + "=\"" + value + "\"";
-//    }
-//    return html;
-//};//}}}
 //
-//o.getOutputType = function (type) {//{{{
-//    switch (type) {
-//        case 'htmlPage':
-//            return this.OUTPUT_HTML_PAGE;
-//            break;
-//        case 'json':
-//            return this.OUTPUT_JSON;
-//            break;
-//        case 'TEXT':
-//            return this.OUTPUT_TEXT;
-//            break;
-//    };
-//    return this.OUTPUT_HTML_PAGE;
-//};//}}}
 //
 //
 ///**
