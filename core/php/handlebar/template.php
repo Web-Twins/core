@@ -26,6 +26,7 @@ class handlebar {
     {
         $html = file_get_contents($template);
         $dir = $this->tmpDir . '/' . dirname($template);
+        $dir = realpath($dir);
         $cache_file = $dir . '/'. basename($template, '.html') . '.php';
         if (!$this->cache || !is_file($cache_file)) {
             $php = LightnCandy::compile($html, Array('flags' => LightnCandy::FLAG_HANDLEBARSJS, "fileext" => "", "basedir" => $this->baseDir));

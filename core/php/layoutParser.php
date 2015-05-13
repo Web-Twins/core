@@ -56,14 +56,14 @@ class layoutParser {
     public function attributeToString($attrs) {//{{{
         $html = array();
         if (empty($attrs)) return "";
-
-        foreach ($attrs as $name => $val) {
-            if (empty($name)) continue;
-            $html[] = $name . "=\"" . $val . "\"";
-
+        $n = $attrs->length;
+        for ($i = 0 ;$i < $n; $i++) {
+            $attr = $attrs->item($i);
+            $html[] = $attr->name . "=\"" . $attr->value . "\"";
         }
+        if (empty($html)) return "";
 
-        return implode(" ", $html);
+        return " " . implode(" ", $html);
     }//}}}
 
     public function getOutputType($type) {//{{{
@@ -275,6 +275,53 @@ class layoutParser {
         }
         return implode("\n", $list);
     }//}}}
+
+    public function renderBody($bodyConfig, $indent) {//{{{
+        //var i, n = 0;
+        //var key, list = [], nodeName, attrs = "",
+        //    moduleHtml, child;
+        $list = array();
+        $n = 0;
+        if (!isset($indent)) $indent = "    ";
+        if ($bodyConfig->childNodes) {
+            $child = $bodyConfig->childNodes;
+            $n = $child->length;
+        } else if ($bodyConfig->nodeValue) {
+            $list[] = $indent . $bodyConfig->nodeValue;
+        } 
+
+        for ($i = 0; $i< $n; $i++) {
+            $elm = $child->item($i);
+            $nodeName = $elm->nodeName;
+            $nodeName = strtolower($nodeName);
+
+            if (!$nodeName) continue;
+
+            switch ($nodeName) {
+                case '#text':case 'text':
+                    $list[] = $indent . $elm->nodeValue;
+                    break;
+                case "module":
+                    $moduleHtml = $this->module->render($elm);
+                    if ($this->enableIndent && !empty($this->indent)) $moduleHtml = preg_replace('/^([\s]*<)/', $indent . "$1", $moduleHtml);
+                    $list[] = $moduleHtml;
+                    break;
+                case 'js':
+                    $list[] = $this->renderJs($elm->nodeValue);
+                    break;
+
+                default:
+                    $attrs = $this->attributeToString($elm->attributes);
+                    $list[] = $indent . '<' . $nodeName . $attrs . '>';
+                    $list[] = $this->renderBody($elm, $indent . "    ");
+                    $list[] =$indent . '</' . $nodeName . '>';
+
+                    break;
+            }
+        }
+        return implode("\n", $list);
+    }//}}}
+
 }
 
 
@@ -426,51 +473,4 @@ class layoutParser {
 //
 //
 //
-//o.renderBody = function (bodyConfig, indent) {//{{{
-//    var i, n = 0;
-//    var key, list = [], nodeName, attrs = "",
-//        moduleHtml, child;
-//
-//    if (typeof(indent) === "undefined") indent = "    ";
-//
-//    if (bodyConfig.childNodes) {
-//        child = bodyConfig.childNodes;
-//        n = child.length;
-//    } else if (bodyConfig.value) {
-//        list.push(indent + bodyConfig.value);
-//    } 
-//
-//
-//
-//    for (i = 0; i< n; i++) {
-//        nodeName = child[i].name;
-//        nodeName = nodeName.toLowerCase();
-//
-//        if (!nodeName) continue;
-//
-//        switch (nodeName) {
-//            case 'text':
-//                list.push(indent + child[i].value);
-//                break;
-//            case "module":
-//                moduleHtml = this.module.render(child[i]);
-//                if (this.enableIndent && indent) moduleHtml = moduleHtml.replace(/^([\s]*<)/mg, indent + "$1");
-//                list.push(moduleHtml);
-//                break;
-//            case 'js':
-//                list.push(this.renderJs(child[i].value));
-//                break;
-//
-//            default:
-//                attrs = this.attributeToString(child[i].attributes);
-//                list.push(indent + '<' + nodeName + attrs + '>');
-//                list.push(this.renderBody(child[i], indent + "    "));
-//                list.push(indent + '</' + nodeName + '>');
-//
-//                break;
-//        }
-//    }
-//
-//
-//    return list.join("\n");
-//};//}}}
+

@@ -6,6 +6,7 @@ class testLayoutParser extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $root = __DIR__ . "/../../examples";
+        $root = realpath($root);
         $baseConfig = array(
             "urlPaths" => array(
                 "template" => "/modules",
@@ -128,17 +129,17 @@ HTML;
 
     public function providerTestAttributeToString() {/*{{{*/
         $data = array();
-        //array(attr, expect)            
+        //array(attr, expect)
+        $html = "<div class=\"a\"></div>";
         $data[] = array(
-                   array("class" => "a"),
-                   "class=\"a\""
+                   $html,
+                   " class=\"a\""
                   );
+        $html = "<div class=\"ab\" width=\"100\"></div>";
+
         $data[] = array(
-                   array(
-                    "class" => "ab",
-                    "width" => 100
-                   ),
-                   "class=\"ab\" width=\"100\""
+                   $html,
+                   " class=\"ab\" width=\"100\""
                   );
  
         return $data;
@@ -147,8 +148,11 @@ HTML;
     /**
      * @dataProvider providerTestAttributeToString
      */
-    public function testAttributeToString($attr, $expect) {/*{{{*/
-        $result = $this->tester->attributeToString($attr);
+    public function testAttributeToString($html, $expect) {/*{{{*/
+        $dom = new DOMDocument();   
+        $dom->loadXML($html);
+        $d = $dom->getElementsByTagName('div');
+        $result = $this->tester->attributeToString($d->item(0)->attributes);
         $this->assertEquals($expect, $result);
     }/*}}}*/
 
@@ -159,8 +163,8 @@ HTML;
                .'</body>' ;
         $expect = array(
             array(
-                'id' => '%2Fwww%2Fdev%2Ftwins%2Ftests%2Fphp%2F..%2F..%2Fexamples%2Fmodules%2Fcommon%2Fheader%2Fstatic%2Fheader.less',
-                'path' => __DIR__ . '/../../examples/modules/common/header/static/header.less',
+                'id' => '%2Fwww%2Fdev%2Ftwins%2Fexamples%2Fmodules%2Fcommon%2Fheader%2Fstatic%2Fheader.less',
+                'path' => realpath(__DIR__ . '/../../examples/modules/common/header/static/header.less'),
                 'urlPath' => '/modules/common/header/static/header.less',
             ),
         );
@@ -187,6 +191,59 @@ HTML;
         }
     }/*}}}*/
 
+    public function providerTestRenderBody() {/*{{{*/
+        $data = array();
+        $html = '<body>'
+               .'    <module models="default.json">common/header</module>'
+               .'</body>' ;
+        $expect = "    \n" . 
+            '<header class="template-header">' . "\n".
+            '    <div>' . "\n".
+            '        <div>Welcome Joe!</div>' . "\n".
+            '    </div>' . "\n".
+            '</header>' . "\n".
+            '';
+        $data[] = array($html, $expect);
+
+        // --------
+         $html = '<body>'
+               . 'test123'
+               .'    <module models="default.json">common/header</module>'
+               .'    <div class="test">aa</div>'
+               .'    <script>var s = "1";</script>'
+               .'</body>' ;
+        $expect = "" . 
+            'test123    ' . "\n" .
+            '<header class="template-header">' . "\n".
+            '    <div>' . "\n".
+            '        <div>Welcome Joe!</div>' . "\n".
+            '    </div>' . "\n".
+            '</header>' . "\n".
+            "\n    \n".
+            '<div class="test">' . "\n" .
+            '    aa' . "\n" .
+            '</div>' . "\n    \n".
+            '<script>' . "\n" .
+            '    var s = "1";' . "\n" . 
+            '</script>' .
+            '';
+        $data[] = array($html, $expect);
+
+        return $data;
+    }/*}}}*/
+
+    /**
+     * @dataProvider providerTestRenderBody
+     */
+    public function testRenderBody($html, $expect) {/*{{{*/
+
+        $dom = new DOMDocument();
+        $dom->loadXML($html);
+        $body = $dom->getElementsByTagName("body");
+        $result = $this->tester->renderBody($body->item(0), "");
+        //echo "result = ";print_r($result);
+        $this->assertEquals($expect, $result);
+    }/*}}}*/
 
 
 }
