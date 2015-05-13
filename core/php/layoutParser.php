@@ -8,7 +8,7 @@ class layoutParser {
     public $cssFile; // CSS level, such as module level, page level, global level ...
     public $context;
     public $module; // The object of module 
-    public $output = "page"; // a:page, 2:json, 3:text
+    public $output = "page"; // 1:page, 2:json, 3:text
     public $baseConfig;
     public $enableIndent = true;
     public $pageDom;
@@ -47,9 +47,12 @@ class layoutParser {
 
         $this->context['baseConfig'] = $baseConfig;
 
-        //$this->module = new moduleMod($root, $this->context);
+        $this->module = new moduleObj($root, $this->context);
     }/*}}}*/
 
+    /**
+     * convert attributes of element to string.
+     */
     public function attributeToString($attrs) {//{{{
         $html = array();
         if (empty($attrs)) return "";
@@ -79,6 +82,9 @@ class layoutParser {
         return self::OUTPUT_HTML_PAGE;
     }//}}}
 
+    /**
+     * Get final static url to  be readered, Combine the base url config and css file path.
+     */
     public function getFinalStaticUrl($path, $type) {//{{{
         $url = "";
         if (strpos($path, 'http') === 0) {
@@ -121,6 +127,36 @@ class layoutParser {
         return $this->cssFile['moduleLevel']; 
     }//}}}
 
+    /**
+     * get the css file recursively from page config
+     *
+     * @param &result
+     */
+    public function getModuleCssRecursive($bodyDom, &$result) {//{{{
+        $n = 0;
+        $childNodes = "";
+        if ($bodyDom->childNodes) {
+            $childNodes = $bodyDom->childNodes;
+            $n = $childNodes->length;
+        }
+
+        for ($i = 0; $i < $n; $i++) {
+            $module = $childNodes->item($i);
+            $name = $module->nodeName;
+            if (!$module) continue;
+            if ($name === 'text') continue;
+            if ($name === "module") {
+                $moduleCss = $this->module->getCssPath($module);
+                if (!$this->isExistStaticFile($moduleCss['id'], $this->cssFile['moduleLevel'])) {
+                    $result[] = $moduleCss;
+                }
+            } else {
+                $this->getModuleCssRecursive($module, $result);
+            }
+        }
+    }//}}}
+
+
     public function isExistStaticFile($id, $stack) {/*{{{*/
         $n = count($stack);
         for ($i = 0; $i < $n; $i++) {
@@ -132,8 +168,8 @@ class layoutParser {
     }/*}}}*/
 
     /**
-     *
-     * @param isFinalPath css url path is already final path, do not appent or prepend any text.
+     * 
+     * @param $isFinalPath css url path is already final path, do not appent or prepend any text.
      */
     public function renderCss($cssText, $isFinalPath = false) {//{{{
         $indent = "";
@@ -438,46 +474,3 @@ class layoutParser {
 //
 //    return list.join("\n");
 //};//}}}
-//
-///**
-// * Get final static url to  be readered, Combine the base url config and css file path.
-// */
-//
-///**
-// * convert attributes of element to string.
-// */
-//
-//
-//
-///**
-// * get the css file recursively from page config
-// *
-// * @param &result
-// */
-//o.getModuleCssRecursive = function (body, result) {//{{{
-//    var i, n = 0;
-//    var childNodes, module, name, moduleCss;
-//
-//    if (body.childNodes) {
-//        childNodes = body.childNodes;
-//        n = childNodes.length;
-//    }
-//    for (i = 0; i < n; i++) {
-//        module = childNodes[i];
-//        name = module.name;
-//        if (!module) continue;
-//        if (name === 'text') continue;
-//        if (name === "module") {
-//            moduleCss = this.module.getCssPath(module);
-//            if (!this.isExistStaticFile(moduleCss.id, this.cssFile.moduleLevel)) {
-//                result.push(moduleCss);
-//            }
-//        } else {
-//            this.getModuleCssRecursive(module, result);
-//        }
-//    }
-//
-//}; //}}}
-//
-//
-

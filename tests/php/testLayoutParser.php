@@ -5,7 +5,16 @@ require_once __DIR__ . "/../../core/php/layoutParser.php";
 class testLayoutParser extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
-        $this->tester = new layoutParser(array(), "", "");
+        $root = __DIR__ . "/../../examples";
+        $baseConfig = array(
+            "urlPaths" => array(
+                "template" => "/modules",
+                "css" => "",
+                "js" => "",
+            )
+        );
+
+        $this->tester = new layoutParser(array(), $root, $baseConfig);
     }
 
 
@@ -142,6 +151,42 @@ HTML;
         $result = $this->tester->attributeToString($attr);
         $this->assertEquals($expect, $result);
     }/*}}}*/
+
+    public function providerTestGetModuleCssRecursive() {/*{{{*/
+        $data = array();
+        $html = '<body>'
+               .'    <module models="default.json">common/header</module>'
+               .'</body>' ;
+        $expect = array(
+            array(
+                'id' => '%2Fwww%2Fdev%2Ftwins%2Ftests%2Fphp%2F..%2F..%2Fexamples%2Fmodules%2Fcommon%2Fheader%2Fstatic%2Fheader.less',
+                'path' => __DIR__ . '/../../examples/modules/common/header/static/header.less',
+                'urlPath' => '/modules/common/header/static/header.less',
+            ),
+        );
+        $data[] = array($html, $expect);
+ 
+        return $data;
+    }/*}}}*/
+
+    /**
+     * @dataProvider providerTestGetModuleCssRecursive
+     */
+    public function testGetModuleCssRecursive($html, $expect) {/*{{{*/
+
+        $dom = new DOMDocument();
+        $dom->loadXML($html);
+        $body = $dom->getElementsByTagName("body");
+        $result = array();
+        $this->tester->getModuleCssRecursive($body->item(0), $result);
+        $n = count($expect);
+        for ($i = 0; $i < $n; $i++) {
+            foreach($expect[$i] as $key => $val){
+                $this->assertEquals($val, $result[$i][$key]);
+            }
+        }
+    }/*}}}*/
+
 
 
 }

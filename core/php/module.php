@@ -7,7 +7,7 @@ class moduleObj {
     public $context;
     public $templateEngine = "handlebars";
 
-    public function __construct($root, $context) {
+    public function __construct($root, $context) {/*{{{*/
 
         $this->root = $root;
         $this->templateBasePath = $root . '/modules';
@@ -17,12 +17,18 @@ class moduleObj {
             mkdir($cachePath);
         }
         $this->handlebar = new handlebar($cachePath);
-    }
+    }/*}}}*/
 
+    /**
+     * @param $module DOMDocument XML Dom
+     */
     public function getModuleInfo($module) {//{{{
+
         $info = array();
-        $modulePath = $module['value'];
+        $modulePath = $module->nodeValue;
         $info["modulePath"] = $modulePath;
+//        $modulePath = $module['value'];
+//        $info["modulePath"] = $modulePath;
         $matches = preg_split('/\//', $modulePath);
         if (isset($matches[1])) {
             $info["moduleName"] = $matches[1];
@@ -92,7 +98,6 @@ class moduleObj {
     public function getCssPath($module) {//{{{
         $css = array();
         $info = $this->getModuleInfo($module);
-
         $path = $info['moduleFullPath'] . '/static/' . $info['moduleName'] . '.less';
         if (is_file($path)) {
             $css['path'] = $path;
