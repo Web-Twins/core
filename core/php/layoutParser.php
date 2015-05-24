@@ -220,12 +220,32 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
-    public function render($pageDom, $siteDom) {//{{{
+    public function render($pageXML, $siteXML = "") {
+        $siteDom = "";
+        if (!is_file($pageXML)) return "";
+        $pageDom = new DOMDocument();
+        $pageDom->load($pageXML);
+        $pageDom = $pageDom->getElementsByTagName("page");
+        if ($pageDom->length <= 0) return "";
+        $pageDom = $pageDom->item(0);
+        if (is_file($siteXML)) {
+            $siteDom = new DOMDocument();
+            $siteDom->load($siteXML);
+            $siteDom = $siteDom->getElementsByTagName("page"); 
+            if ($siteDom->length > 0) {
+                $siteDom = $siteDom->item(0);
+            } else {
+                $siteDom = "";
+            }
+        }
+        return $this->renderByDom($pageDom, $siteDom);
+    }
+
+    public function renderByDom($pageDom, $siteDom = "") {//{{{
         $list = array();
         $output = "";
         $this->pageDom = $pageDom;
         if ($siteDom) $this->siteDom = $siteDom;
-
         $self = $this;
         if ($pageDom->childNodes) $child = $pageDom->childNodes;
 
@@ -237,6 +257,7 @@ class layoutParser {
 
         switch ($this->output) {
             case $this::OUTPUT_HTML_PAGE:
+            default:
                 $list[] = "<!DOCTYPE html>\n<html>";
                 break;
         }
@@ -251,7 +272,7 @@ class layoutParser {
             $nodeName = strtolower($node->nodeName);
             switch ($nodeName) {
                 case 'head':
-                    if ($this->output !== $this->OUTPUT_HTML_PAGE) continue;
+                    if ($this->output !== $this::OUTPUT_HTML_PAGE) continue;
                     $list[] = '<head>';
                     if ($siteDom) {
                         $siteHead = $siteDom->getElementsByTagName("head");
@@ -262,15 +283,18 @@ class layoutParser {
                     $list[] = $this->renderHead($node);
 
                     //render Module Level Css in site.html
-                    $this->getModuleCss($this->siteDom);
+                    if ($this->siteDom)
+                        $this->getModuleCss($this->siteDom);
                     // render Module Level css in page.html
                     $moduleCss = $this->getModuleCss($this->pageDom);
-                    $cssCount = $moduleCss->length;
-                    for ($j = 0; $j < $cssCount; $j++) {
-                        if (!$moduleCss[$j] || !$moduleCss[$j]['urlPath']) continue;
+                    if ($moduleCss) {
+                        $cssCount = $moduleCss->length;
+                        for ($j = 0; $j < $cssCount; $j++) {
+                            if (!$moduleCss[$j] || !$moduleCss[$j]['urlPath']) continue;
 
-                        $isFinalPath = true;
-                        $list[] = $this->renderCss($moduleCss[$j]['urlPath'], $isFinalPath);
+                            $isFinalPath = true;
+                            $list[] = $this->renderCss($moduleCss[$j]['urlPath'], $isFinalPath);
+                        }
                     }
                     $list[] = '</head>';
                     break;

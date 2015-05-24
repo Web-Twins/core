@@ -270,6 +270,18 @@ HTML;
         $data[] = array($html, $expect);
 
         // --------
+        $html = "<page output=\"htmlPage\"><head><css>a.css</css></head><body></body></page>";
+        $expect = "<!DOCTYPE html>\n"
+            ."<html>\n"
+            ."<head>\n"
+            ."    <link href=\"a.css\" rel=\"stylesheet\" type=\"text/css\">\n"
+            ."</head>\n"
+            ."<body>\n\n"
+            ."</body>\n"
+            ."</html>";
+        $data[] = array($html, $expect);
+
+
         return $data;
     }/*}}}*/
 
