@@ -100,10 +100,8 @@ class layoutParser {
         return $url;
     }//}}}
 
-    public function getModuleCss($dom, $config) {//{{{
+    public function getModuleCss($dom) {//{{{
         //var head, body, css, moduleCss;
-
-        if (empty($config)) return array();
         $head = $dom->getElementsByTagName('head');
         if ($head && $head->length > 0 && $head->item(0)->childNodes) {
 
@@ -222,6 +220,140 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
+    public function render($pageDom, $siteDom) {//{{{
+        $list = array();
+        $output = "";
+        $this->pageDom = $pageDom;
+        if ($siteDom) $this->siteDom = $siteDom;
+
+        $self = $this;
+        if ($pageDom->childNodes) $child = $pageDom->childNodes;
+
+        if ($pageDom->hasAttribute('output')) {
+            $output = $pageDom->getAttribute('output');
+        } 
+
+        $this->output = $this->getOutputType($output);
+
+        switch ($this->output) {
+            case $this::OUTPUT_HTML_PAGE:
+                $list[] = "<!DOCTYPE html>\n<html>";
+                break;
+        }
+        if ($child) {
+            $n = $child->length;
+        } else {
+            $n = 0;
+        }
+
+        for ($i = 0; $i< $n; $i++) {
+            $node = $child->item($i);
+            $nodeName = strtolower($node->nodeName);
+            switch ($nodeName) {
+                case 'head':
+                    if ($this->output !== $this->OUTPUT_HTML_PAGE) continue;
+                    $list[] = '<head>';
+                    if ($siteDom) {
+                        $siteHead = $siteDom->getElementsByTagName("head");
+                        if ($siteHead->length > 0) {
+                            $list[] = $this->renderHead($siteHead->item(0));
+                        }
+                    }
+                    $list[] = $this->renderHead($node);
+
+                    //render Module Level Css in site.html
+                    $this->getModuleCss($this->siteDom);
+                    // render Module Level css in page.html
+                    $moduleCss = $this->getModuleCss($this->pageDom);
+                    $cssCount = $moduleCss->length;
+                    for ($j = 0; $j < $cssCount; $j++) {
+                        if (!$moduleCss[$j] || !$moduleCss[$j]['urlPath']) continue;
+
+                        $isFinalPath = true;
+                        $list[] = $this->renderCss($moduleCss[$j]['urlPath'], $isFinalPath);
+                    }
+                    $list[] = '</head>';
+                    break;
+                case 'body':
+                    switch ($this->output) {
+                        case $this::OUTPUT_HTML_PAGE:
+                            $list[] = "<body>";
+                            break;
+                    }
+
+                    if ($siteDom) {
+                        $siteBody = $siteDom->getElementsByTagName("header");
+                        if ($siteBody->length > 0) {
+                            $list[] = $this->renderBody($siteBody->item(0));
+                        }
+                    }
+
+                    //render css in top body
+                    if ($this->bodyCss['top']) {
+                        foreach ($this->bodyCss['top'] as $c) {
+                            $list[] = $this->renderCss($c->value);
+                        }
+                    }
+
+                    //render js in top body
+                    //if ($this.bodyJs['top']) {
+                    //    this.bodyJs['top'].forEach(function (c) {
+                    //        list.push(self.renderJs(c.value));
+                    //    });
+                    //}
+
+                    $list[] = $this->renderBody($node);
+
+                    if ($siteDom) {
+                        $siteBody = $siteDom->getElementsByTagName("footer");
+                        if ($siteBody->length > 0) {
+                            // siteBody[0] is a DOMElement which only has the key nodeValue.
+                            $list[] = $this->renderBody($siteBody->item(0));
+                        }
+                    }
+
+                    //render css in bottom of body
+                    //if (this.bodyCss['bottom']) {
+                    //    this.bodyCss['bottom'].forEach(function (c) {
+                    //        list.push(self.renderCss(c.value));
+                    //    });
+                    //}
+
+                    ////render js in bottom of body
+                    //if (this.bodyJs['bottom']) {
+                    //    this.bodyJs['bottom'].forEach(function (c) {
+                    //        list.push(self.renderJs(c.value));
+                    //    });
+                    //}
+
+                    switch ($this->output) {
+                        case $this::OUTPUT_HTML_PAGE:
+                            $list[] = "</body>";
+                            break;
+                    }
+
+                    //render js after body
+                    //if (this.bodyJs['after']) {
+                    //    this.bodyJs['after'].forEach(function (c) {
+                    //        list.push(self.renderJs(c.value));
+                    //    });
+                    //}
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        switch ($this->output) {
+            case $this::OUTPUT_HTML_PAGE:
+                $list[] = "</html>";
+                break;
+        }
+        return implode("\n", $list);
+
+    }//}}}
+
     public function renderHead($config) {//{{{
         $list = array();
         $child = $config->childNodes; 
@@ -276,7 +408,7 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
-    public function renderBody($bodyConfig, $indent) {//{{{
+    public function renderBody($bodyConfig, $indent = "") {//{{{
         //var i, n = 0;
         //var key, list = [], nodeName, attrs = "",
         //    moduleHtml, child;
@@ -314,7 +446,7 @@ class layoutParser {
                     $attrs = $this->attributeToString($elm->attributes);
                     $list[] = $indent . '<' . $nodeName . $attrs . '>';
                     $list[] = $this->renderBody($elm, $indent . "    ");
-                    $list[] =$indent . '</' . $nodeName . '>';
+                    $list[] = $indent . '</' . $nodeName . '>';
 
                     break;
             }
@@ -323,154 +455,4 @@ class layoutParser {
     }//}}}
 
 }
-
-
-
-//o.render = function (pageDom, siteDom) {//{{{
-//    var i, n;
-//    var list = [], key, child, nodeName, output = "", 
-//        siteBody, self, modules, pageConfig, siteConfig;
-//
-//    this.pageDom = pageDom;
-//    if (siteDom) this.siteDom = siteDom;
-//    pageConfig = pageDom.json;
-//    if (siteDom) siteConfig = siteDom.json;
-//
-//    self = this;
-//    if (pageConfig.childNodes) child = pageConfig.childNodes;
-//
-//    if (pageConfig.attributes 
-//        && pageConfig.attributes['output']
-//       ) {
-//        output = pageConfig.attributes['output'];
-//    } 
-//
-//    this.output = this.getOutputType(output);
-//
-//    switch (this.output) {
-//        case this.OUTPUT_HTML_PAGE:
-//            list.push("<!DOCTYPE html>\n<html>");
-//            break;
-//    }
-//
-//    if (child) {
-//        n = child.length;
-//    } else {
-//        n = 0;
-//    }
-//
-//    for (i = 0; i< n; i++) {
-//        nodeName = child[i].name;
-//        nodeName = nodeName.toLowerCase();
-//        switch (nodeName) {
-//            case 'head':
-//                if (this.output !== this.OUTPUT_HTML_PAGE) continue;
-//                list.push('<head>');
-//                if (siteConfig) {
-//                    var siteHead = siteDom.getElementsByTagName("head");
-//                    if (siteHead && siteHead[0]) {
-//                        list.push(this.renderHead(siteHead[0]));
-//                    }
-//                }
-//                list.push(this.renderHead(child[i]));
-//
-//                //render Module Level Css in site.html
-//                this.getModuleCss(this.siteDom, siteConfig);
-//                // render Module Level css in page.html
-//                moduleCss = this.getModuleCss(this.pageDom, pageConfig);
-//                var cssCount = moduleCss.length;
-//                for (var j = 0; j < cssCount; j++) {
-//                    if (!moduleCss[j] || !moduleCss[j]['urlPath']) continue;
-//
-//                    var isFinalPath = true;
-//                    list.push(this.renderCss(moduleCss[j]['urlPath'], isFinalPath));
-//                }
-//                list.push('</head>');
-//                break;
-//            case 'body':
-//                switch (this.output) {
-//                    case this.OUTPUT_HTML_PAGE:
-//                        list.push("<body>");
-//                        break;
-//                }
-//
-//                if (siteConfig) {
-//                    siteBody = siteDom.getElementsByTagName("header");
-//                    if (siteBody && siteBody[0]) {
-//                        siteBody[0].value = siteBody[0].nodeValue;
-//                        list.push(this.renderBody(siteBody[0]));
-//                    }
-//                }
-//
-//                //render css in top body
-//                if (this.bodyCss['top']) {
-//                    this.bodyCss['top'].forEach(function (c) {
-//                        list.push(self.renderCss(c.value));
-//                    });
-//                }
-//
-//                //render js in top body
-//                if (this.bodyJs['top']) {
-//                    this.bodyJs['top'].forEach(function (c) {
-//                        list.push(self.renderJs(c.value));
-//                    });
-//                }
-//
-//                list.push(this.renderBody(child[i]));
-//
-//                if (siteConfig) {
-//                    siteBody = siteDom.getElementsByTagName("footer");
-//                    if (siteBody && siteBody[0]) {
-//                        // siteBody[0] is a DOMElement which only has the key nodeValue.
-//                        siteBody[0].value = siteBody[0].nodeValue;
-//                        list.push(this.renderBody(siteBody[0]));
-//                    }
-//                }
-//
-//                //render css in bottom of body
-//                if (this.bodyCss['bottom']) {
-//                    this.bodyCss['bottom'].forEach(function (c) {
-//                        list.push(self.renderCss(c.value));
-//                    });
-//                }
-//
-//                //render js in bottom of body
-//                if (this.bodyJs['bottom']) {
-//                    this.bodyJs['bottom'].forEach(function (c) {
-//                        list.push(self.renderJs(c.value));
-//                    });
-//                }
-//
-//                switch (this.output) {
-//                    case this.OUTPUT_HTML_PAGE:
-//                        list.push("</body>");
-//                        break;
-//                }
-//
-//                //render js after body
-//                if (this.bodyJs['after']) {
-//                    this.bodyJs['after'].forEach(function (c) {
-//                        list.push(self.renderJs(c.value));
-//                    });
-//                }
-//
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-//    switch (this.output) {
-//        case this.OUTPUT_HTML_PAGE:
-//            list.push("</html>");
-//            break;
-//    }
-//    return list.join("\n");
-//
-//};//}}}
-//
-//
-//
-//
-//
 

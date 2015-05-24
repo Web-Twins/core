@@ -246,4 +246,48 @@ HTML;
     }/*}}}*/
 
 
+    public function providerTestRender() {/*{{{*/
+        $data = array();
+        $html = '<page><body>'
+               .'    <module models="default.json">common/header</module>'
+               .'    <module models="default.json">common/footer</module>'
+
+              .'</body>' 
+               .'</page>';
+        $expect = "<!DOCTYPE html>\n"
+            ."<html>\n"
+            ."<body>\n    \n"
+            .'<header class="template-header">' . "\n".
+            '    <div>' . "\n".
+            '        <div>Welcome Joe!</div>' . "\n".
+            '    </div>' . "\n"
+            .'</header>' . "\n\n    \n"
+            ."<footer>\n"
+            ."    Copyright © 2001-2015  Web-Twins. All rights reserved.\n"
+            ."</footer>\n\n"
+            ."</body>\n"
+            ."</html>";
+        $data[] = array($html, $expect);
+
+        // --------
+        return $data;
+    }/*}}}*/
+
+
+    /**
+     * @dataProvider providerTestRender
+     */
+    public function testRender_Normal($html, $expect) {/*{{{*/
+
+        $dom = new DOMDocument();
+        $dom->loadXML($html);
+        $page = $dom->getElementsByTagName("page");
+        $result = $this->tester->render($page->item(0), "");
+        echo "result = ";print_r($result);
+        $this->assertEquals($expect, $result);
+    }/*}}}*/
+
+
+
+
 }

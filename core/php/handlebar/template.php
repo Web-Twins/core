@@ -26,7 +26,8 @@ class handlebar {
     {
         $html = file_get_contents($template);
         $dir = $this->tmpDir . '/' . dirname($template);
-        $dir = realpath($dir);
+        $dir = $this->getRealPath($dir);
+
         $cache_file = $dir . '/'. basename($template, '.html') . '.php';
         if (!$this->cache || !is_file($cache_file)) {
             $php = LightnCandy::compile($html, Array('flags' => LightnCandy::FLAG_HANDLEBARSJS, "fileext" => "", "basedir" => $this->baseDir));
@@ -47,6 +48,26 @@ class handlebar {
         }
         //$renderer = LightnCandy::prepare($php, $this->tmpDir);
         //return $renderer($data); 
+    }
+
+    public function getRealPath($path) {
+        $real = "/";
+        $p = explode("/", $path);
+        $n = count($p);
+        for ($i = 0; $i < $n; $i++) {
+            if ($p[$i] === "..") {
+                for ($j = $i - 1; $j >=0; $j--) {
+                    if (!empty($p[$j])) {
+                        $p[$j] = ""; break;
+                    } 
+                }
+                $p[$i] = "";
+            }
+        }
+        $real = "/" . implode("/", $p);
+        $real = preg_replace("/[\/]+/", "/", $real);
+        $real = preg_replace("/[\/]+$/", "", $real);
+        return $real;
     }
 
 }
