@@ -86,7 +86,7 @@ class moduleObj {
                 $fullPath = $this->root . '/' . $path . '/views/' . $name . ".hb.html";
                 break;
         }
-        //error_log("Template full path = " + fullPath);
+        //error_log("Template full path = " . $fullPath);
         if (!is_file($fullPath)) {
             error_log($fullPath . " is not exist.");
         }
@@ -115,17 +115,20 @@ class moduleObj {
         return $css;
     }//}}}
 
-    public function render($element) {//{{{
-
+    /**
+     * @param bool isReal real mode or template mode
+     */
+    public function render($element, $model = false) {//{{{
         $templatePath = $element->nodeValue;
+        if (false === $model) {
+            $modelName = "default.json";
+            if ($element->hasAttribute("model")) {
+                $modelName = $element->getAttribute("model");
+            }
 
-        $modelName = "default.json";
-        if ($element->hasAttribute("model")) {
-            $modelName = $element->getAttribute("model");
+            $modelPath =  $templatePath . "/models/" . $modelName;
+            $model = $this->getModel($modelPath);
         }
-
-        $modelPath =  $templatePath . "/models/" . $modelName;
-        $model = $this->getModel($modelPath);
         $templatePath = $this->getTemplate('modules/' . $templatePath);
 
 

@@ -90,13 +90,14 @@ class layoutParser {
         if (strpos($path, 'http') === 0) {
             return $path;
         }
+        $path = preg_replace('/\.less$/', '.css', $path);
         if ($this->baseConfig['urlPaths']
             && $this->baseConfig['urlPaths'][$type]
         ) {
             $url = $this->baseConfig['urlPaths'][$type];
         }
 
-        $url .= $path;
+        $url .= '/'.$path;
         return $url;
     }//}}}
 
@@ -165,6 +166,10 @@ class layoutParser {
         return false;
     }/*}}}*/
 
+    public function setData($key, $data) {
+        $this->context[$key] = $data;
+    }
+
     /**
      * 
      * @param $isFinalPath css url path is already final path, do not appent or prepend any text.
@@ -220,7 +225,7 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
-    public function render($pageXML, $siteXML = "") {
+    public function render($pageXML, $siteXML = "") {/*{{{*/
         $siteDom = "";
         if (!is_file($pageXML)) return "";
         $pageDom = new DOMDocument();
@@ -231,7 +236,7 @@ class layoutParser {
         if (is_file($siteXML)) {
             $siteDom = new DOMDocument();
             $siteDom->load($siteXML);
-            $siteDom = $siteDom->getElementsByTagName("page"); 
+            $siteDom = $siteDom->getElementsByTagName("site"); 
             if ($siteDom->length > 0) {
                 $siteDom = $siteDom->item(0);
             } else {
@@ -239,7 +244,7 @@ class layoutParser {
             }
         }
         return $this->renderByDom($pageDom, $siteDom);
-    }
+    }/*}}}*/
 
     public function renderByDom($pageDom, $siteDom = "") {//{{{
         $list = array();
@@ -421,8 +426,8 @@ class layoutParser {
                     }
                     break;
                 case 'module':
-                    $moduleHtml = $this->module->render($node);
-                    if ($this->enableIndent) $moduleHtml = preg_replace('/^([\s]*<)/mg', "    $1", $moduleHtml);
+                    $moduleHtml = $this->renderModule($node, true);
+                    if ($this->enableIndent && $moduleHtml) $moduleHtml = preg_replace('/^([\s]*<)/m', "    $1", $moduleHtml);
                     $list[] = $moduleHtml;
 
                     break;
@@ -433,9 +438,6 @@ class layoutParser {
     }//}}}
 
     public function renderBody($bodyConfig, $indent = "") {//{{{
-        //var i, n = 0;
-        //var key, list = [], nodeName, attrs = "",
-        //    moduleHtml, child;
         $list = array();
         $n = 0;
         if (!isset($indent)) $indent = "    ";
@@ -458,7 +460,7 @@ class layoutParser {
                     $list[] = $indent . $elm->nodeValue;
                     break;
                 case "module":
-                    $moduleHtml = $this->module->render($elm);
+                    $moduleHtml = $this->renderModule($elm, true);
                     if ($this->enableIndent && !empty($this->indent)) $moduleHtml = preg_replace('/^([\s]*<)/', $indent . "$1", $moduleHtml);
                     $list[] = $moduleHtml;
                     break;
@@ -477,6 +479,15 @@ class layoutParser {
         }
         return implode("\n", $list);
     }//}}}
+
+    public function renderModule($node) {
+        $model = true;
+        if ($node->hasAttribute('dataKey')) {
+            $key = $node->getAttribute('dataKey');
+            if ($key) $model = $this->context[$key];
+        }
+        return $this->module->render($node, $model);
+    }
 
 }
 
