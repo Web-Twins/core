@@ -454,7 +454,6 @@ class layoutParser {
             $nodeName = strtolower($nodeName);
 
             if (!$nodeName) continue;
-
             switch ($nodeName) {
                 case '#text':case 'text':
                     $list[] = $indent . $elm->nodeValue;
@@ -480,7 +479,7 @@ class layoutParser {
         return implode("\n", $list);
     }//}}}
 
-    public function renderModule($node) {
+    public function renderModule($node, $isReal = true) {
         $model = true;
         if ($node->hasAttribute('dataKey')) {
             $key = $node->getAttribute('dataKey');

@@ -5,7 +5,7 @@ class handlebar {
     public $tmpDir;
     public $cache = false;
     public $baseDir = "";
-    public function __construct($path, $cache = false, $baseDir = "") 
+    public function __construct($path, $cache = false) 
     {
         if (empty($path)) {
             $this->tmpDir = "/tmp/template_cache";
@@ -19,7 +19,6 @@ class handlebar {
         if ($cache) {
             $this->cache = $cache;
         }
-        $this->baseDir = $baseDir;
     }
 
     public function render($template, $data) 
@@ -27,10 +26,10 @@ class handlebar {
         $html = file_get_contents($template);
         $dir = $this->tmpDir . '/' . dirname($template);
         $dir = $this->getRealPath($dir);
-
         $cache_file = $dir . '/'. basename($template, '.html') . '.php';
+        $baseDir = dirname($template);
         if (!$this->cache || !is_file($cache_file)) {
-            $php = LightnCandy::compile($html, Array('flags' => LightnCandy::FLAG_HANDLEBARSJS, "fileext" => "", "basedir" => $this->baseDir));
+            $php = LightnCandy::compile($html, Array('flags' => LightnCandy::FLAG_HANDLEBARSJS, "fileext" => "", "basedir" => $baseDir));
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
@@ -42,12 +41,9 @@ class handlebar {
         } else {
             $exec = include($cache_file);
         }
-
         if ($exec) {
             return $exec($data);
         }
-        //$renderer = LightnCandy::prepare($php, $this->tmpDir);
-        //return $renderer($data); 
     }
 
     public function getRealPath($path) {
