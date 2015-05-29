@@ -13,7 +13,18 @@ class layoutParser {
     public $enableIndent = true;
     public $pageDom;
     public $siteDom;
-    
+
+    /******* Features ********/
+    /**
+     * Developed mode: 
+    */
+    // Combine the files of css into only one url
+    public $enableCssCombo = true;
+    // Combine the files of JavaScript into only one url
+    public $enableJsCombo = true;
+    // Display the data of models
+
+    const MAX_URL_LENGTH = 2000;
     const OUTPUT_HTML_PAGE = 1;
     const OUTPUT_JSON = 2;
     const OUTPUT_TEXT = 3;
@@ -65,6 +76,43 @@ class layoutParser {
 
         return " " . implode(" ", $html);
     }//}}}
+
+    /**
+     * Combine multi file into one url combo
+    */ 
+    public function combineFiles($base, $list) {/*{{{*/
+        $base .= "?";
+        $res = array();
+        $url = ""; $urlLen = 0;
+        $baseLen = strlen($base);
+        foreach ($list as $file) {
+            $tmpLen = strlen($file) + 1;
+            if ($tmpLen == 1) continue;
+            if ($tmpLen >= 4) $protocol = strtolower(substr($file, 0, 4));
+            if ($protocol === "http") {
+                if ($urlLen > 0) $res[] = $url;
+                $res[] = $file;
+                $url = "";
+                $urlLen = 0;
+                continue;
+            }
+
+            if ($tmpLen + $urlLen < self::MAX_URL_LENGTH) {
+                if ($urlLen === 0) {
+                    $url = $base;  
+                    $urlLen = $baseLen;
+                }
+                $url .= $file . '&';
+                $urlLen += $tmpLen;
+            } else {
+                $res[] = $url;
+                $url = $base . $file . '&';
+                $urlLen = $baseLen + $tmpLen;
+            }
+        }
+        if ($urlLen >0 ) $res[] = $url;
+        return $res;
+    }/*}}}*/
 
     public function getOutputType($type) {//{{{
         $type = strtolower($type);
@@ -188,21 +236,14 @@ class layoutParser {
         if (empty($cssText)) return "";
 
         $cssList = preg_split('/[\r\n\s]+/', $cssText);
-        $n = sizeof($cssList);
 
-        for ($i = 0; $i < $n; $i++) {
-            $cssUrl = $cssList[$i];
-            if (empty($cssUrl)) continue;
-
-            if (false === $isFinalPath) {
-                $finalCssUrl = $this->getFinalStaticUrl($cssUrl, 'css');
-            } else {
-                $finalCssUrl = $cssUrl;
-            }
-
-            $list[] = $indent . '<link href="' . $finalCssUrl . '" rel="stylesheet" type="text/css">';
+        if (true === $this->enableCssCombo) {
+            $cssList = $this->combineFiles($this->baseConfig['urlPaths']['cssCombo'], $cssList);
         }
-
+        
+        foreach ($cssList as $url) {
+            $list[] = $indent . '<link href="' . $url . '" rel="stylesheet" type="text/css">';
+        }
         return implode("\n", $list);
     }//}}}
 
@@ -215,12 +256,12 @@ class layoutParser {
         }
         $jsList = preg_split('/[\r\n\s]+/', $jsText);
 
-        $n = sizeof($jsList);
-        for ($i = 0; $i < $n; $i++) {
-            $jsUrl = $jsList[$i];
-            if (empty($jsUrl)) continue;
-            $finalJsUrl = $this->getFinalStaticUrl($jsUrl, 'js');
-            $list[] = $indent . '<script src="' . $finalJsUrl . '"></script>';
+        if (true === $this->enableJsCombo) {
+            $jsList = $this->combineFiles($this->baseConfig['urlPaths']['jsCombo'], $jsList);
+        }
+
+        foreach ($jsList as $url) {
+            $list[] = $indent . '<script src="' . $url . '"></script>';
         }
         return implode("\n", $list);
     }//}}}
