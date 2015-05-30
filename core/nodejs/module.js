@@ -72,13 +72,17 @@ o.getModel = function (path) {//{{{
         if (splitByDot.length > 0) {
             extName = splitByDot[splitByDot.length -1];
         }
-        if (extName.toLowerCase() === "yaml") {
-            if (!this.moduleList.YAML) {
-                this.moduleList.YAML = require('yamljs'); 
+        try {
+            if (extName.toLowerCase() === "yaml") {
+                if (!this.moduleList.YAML) {
+                    this.moduleList.YAML = require('yamljs'); 
+                }
+                data = this.moduleList.YAML.parse(data);
+            } else {
+                data = php.json_decode(data);
             }
-            data = this.moduleList.YAML.parse(data);
-        } else {
-            data = php.json_decode(data);
+        } catch(var e) {
+            throw new Exception("JSON parse or Yaml parse were failed " + e);
         }
     }
     return data;
