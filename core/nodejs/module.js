@@ -1,5 +1,5 @@
+var Handlebars, Jade;
 var php = require('phplike/module');
-var Handlebars = require('handlebars');
 var util = new (require('./util'))();
 var checksum = require('checksum');
 
@@ -39,26 +39,36 @@ o.render = function (config) {//{{{
     model = this.getModel(modelPath);
     templateHtml = this.getTemplate('modules/' + templatePath);
 
+    switch (this.templateEngine) {
+        case 'handlebars':
+            if (!Handlebars) Handlebars = require('handlebars');
+            templateHtml = templateHtml.replace(/\{\{[\s]?\>[\s]+([^\}]+)\}\}/m, function (str, fileName) {
+                var path;
+                path = self.templateBasePath + '/' + templatePath + "/views/" + fileName;
+                if (php.is_file(path)) {
+                    return php.file_get_contents(path);
+                }
 
-    templateHtml = templateHtml.replace(/\{\{[\s]?\>[\s]+([^\}]+)\}\}/m, function (str, fileName) {
-        var path;
-        path = self.templateBasePath + '/' + templatePath + "/views/" + fileName;
-        if (php.is_file(path)) {
-            return php.file_get_contents(path);
-        }
+                return "File " + str + "Not Found";
+            });
+            template = Handlebars.compile(templateHtml);
+            return template(model);
+            break;
+        case 'jade':
+            if (!Jade) Jade = require('jade');
+            template = Jade.compile(templateHtml, {});
+            return  template(model);
+            break;
 
-        return "File " + str + "Not Found";
-    });
+    }
 
-    template = Handlebars.compile(templateHtml);
 
-    return template(model);
 
 };//}}}
 
 
 o.getModel = function (path) {//{{{
-    var data, fullPath, splitByDot, extName = "";
+    var data, fullPath, splitByDot, extName = "", e;
     fullPath = this.templateBasePath + '/' + path;
 
     if (!php.is_file(fullPath)) {
@@ -81,7 +91,7 @@ o.getModel = function (path) {//{{{
             } else {
                 data = php.json_decode(data);
             }
-        } catch(var e) {
+        } catch(e) {
             throw new Exception("JSON parse or Yaml parse were failed " + e);
         }
     }
@@ -104,6 +114,10 @@ o.getTemplate = function (path) {//{{{
         case 'handlebars':
             fullPath = this.root + '/' + path + '/views/' + name + ".hb.html";
             break;
+        case 'jade':
+            fullPath = this.root + '/' + path + '/views/' + name + ".jade";
+            break;
+
     }
     //console.log("Template full path = " + fullPath);
     if (!php.is_file(fullPath)) {

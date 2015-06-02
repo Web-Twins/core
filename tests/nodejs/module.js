@@ -65,7 +65,31 @@ describe("Test: get models", function () {
     });
 
 
+});
+describe("Test: Render", function () {
+    it("Normal Handlebars templates", function () {
+        var config = {}, expect;
+        config['value'] = "common/header";
+        expect = '<header class="template-header">' + "\n"
+                +"    <div>\n"
+                +"        <div>Welcome Joe!</div>\n"
+                +"    </div>\n"
+                +"</header>\n";
+        tester.templateEngine = "handlebars";
+        var result = tester.render(config);
+        //console.log(result);
+        assert.equal(expect, result);
+    });
 
+    it("Normal Jade templates", function () {
+        var config = {}, expect;
+        config['value'] = "common/header";
+        expect = '<header class="template-header"><div><div>Welcome Joe!</div></div></header>';
+        tester.templateEngine = "jade";
+        var result = tester.render(config);
+        //console.log(result);
+        assert.equal(expect, result);
+    });
 
 });
 
