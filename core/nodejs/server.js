@@ -4,7 +4,7 @@ var php = require('phplike/module');
 var i18n = require('i18n');
 var language = "en";
 var less = require('less');
-
+var sass = require('node-sass');
 
 
 i18n.configure({
@@ -28,18 +28,27 @@ var o = server.prototype;
 o.root = "";
 
 o.start = function (host, port) {//{{{
-    var loadConfigPages, loadLess;
+    var loadConfigPages, loadLess, loadSass;
     loadConfigPages = this.loadConfigPages.bind(this);
     loadLess = this.loadLess.bind(this);
+    loadSass = this.loadSass.bind(this);
 
     if (!port) port = 80;
     if (!host) host = "localhost";
 
     app.use('/static/**.less', loadLess);
+    app.use('/static/**.sass', loadSass);
+    app.use('/static/**.scss', loadSass);
+
+
+
     app.use('/static', express.static(this.root + '/static'));
     app.use('/modules/**.less', loadLess);
     app.use('/modules/**.css', express.static(this.root + '/static'));
     app.use('/modules/**.js', express.static(this.root + '/static'));
+    app.use('/modules/**.scss', loadSass);
+    app.use('/modules/**.sass', loadSass);
+
 
 
 
@@ -185,6 +194,25 @@ o.loadLess = function (req, res) {//{{{
     }
 
 
+};//}}}
+
+o.loadSass = function (req, res) {//{{{
+    var html = "", path;
+
+    path = this.root + "/"  + req.baseUrl;
+    if (!php.is_file(path)) {
+       res.write(".fileNotFound{}"); 
+       res.end();
+    } else {
+        res.contentType("text/css");
+        sass.render({
+           file: path
+        }, function (e, output) {
+           if (e) console.log(e);
+           res.write(output.css);
+           res.end();
+        });
+    }
 };//}}}
 
 module.exports = server;

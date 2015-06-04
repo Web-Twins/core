@@ -59,7 +59,9 @@ module.js: <br />
 This object support to parse the tag module then render the module's HTML. A module is a little like the MVC structure. But it includes the view and model without controller. We could define multi models for template mode development. The format of model is a JSON or YAML. The development of view is a handlebar template, The module.js can compile the templates and parse the models and  combine this two kind of data to become a HTML. In the future, We will support more kind of templates.
 
 
-
+CSS/JavaScript combo
+* take care of the relative image page in css.
+* Support less and sass/scss
 
 Attention for development!
 --------------------------
