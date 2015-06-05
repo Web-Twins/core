@@ -11,10 +11,13 @@ Travis CI status: [![Unit testing](https://travis-ci.org/Web-Twins/core.png?bran
 Purpose
 -------
 
-This framework want to keep the development more simple.
+This framework want to give engineers a simplest framework for their development. We will remove  the technical gap between the backend engineers and the frontend engineers.
 
-All Frontend engineer should do is to modify the templates,css,javascript and commit, then everything will be finished. Backend engineer do not need to spend any time integrating templates. This will be a perfect way for developing a website.
+Within Web-Twins, all Frontend engineer should only modify the Templates,CSS,JavaScript and commit these file, then everything will be finished. Backend engineers don't need to spend any time integrating these templates. This will be a perfect way for developing a website.
 
+What is Web-Twins meanning?
+
+Twins mean that it will give two websites, one is the Template Mode and another is the Real Mode. These two websites can switch to each other at any time. After you modify the source code in Template Mode, the Real mode will look like the same with Template Mode immedidately.
 
 Infrastructure Design of web-twins
 ==================================
@@ -22,7 +25,7 @@ Infrastructure Design of web-twins
 The framework will give what to you
 -----------------------------------
 
-* MVC: A MVC platform  for front-end and back-end engineers.
+* MVC: A MVC framework  for front-end and back-end engineers.
 * Modularization: Modularize the website pages. 
 * Support Nodejs and PHP. You can use Nodejs or PHP to build a MVC website, also you can use both of them if you want.
 * Shorten the time of program integration.
@@ -63,15 +66,15 @@ CSS/JavaScript
 --------------
 
 * Combination
-* 
+
 Web-Twins support the combo of CSS/JS to improve the frontend performace.  
 
-Attention! 
+Attention! <br />
 Take care of the relative image path in css, if you use the combination of CSS,  be sure the combo url path has the same level with separated CSS file path.
 
 
 * Less and Sass/Scaa
-* 
+ 
 Web-Twins support less and sass/scss.
 
 Attention for development!
