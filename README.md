@@ -23,6 +23,16 @@ Twins mean that it will give two websites, one is the Template Mode and another 
 
 We suggest frontend engineer to use Node.js to develop the websites for Template mode. Use Nodejs and NPM to install this framework and double click the file server.js. It will quickly create a web server. You don't need to worry about the installation of web service, just focus on tempalte development.
 
+Key-Wins
+-------
+
+* Connection: Web-Twins has two data format JSON and YAML. Web-Twins use the MVC design pattern to connect the backend and frontend program.
+* Independent: Backend engineers can focus on programming without worrying about frontend HTML code or what CSS/JS should be loaded. Frontend enginners can also focus on template development.
+* Switching: We can switch Template Mode and Real Mode to compare the difference, also backend engineer can switch t he web page to template mode seeing what is the original UI design of Frontend engineer. This will clarify the Frontend requirements for the programming integrator.   
+* Debugging: Using JSON or YAML data to decide the responsibility of bug is belong to Backend or Frontend.
+* Bulit-in Frontend Skill: CSS/JS combination, Image Sprite.
+
+
 Infrastructure Design of web-twins
 ==================================
 
