@@ -13,13 +13,15 @@ Purpose
 
 This framework want to give engineers a simplest framework for their development. We will remove  the technical gap between the backend engineers and the frontend engineers.
 
-Within Web-Twins, all Frontend engineer should only modify the Templates,CSS,JavaScript and commit these file, then everything will be finished. Backend engineers don't need to spend any time integrating these templates. This will be a perfect way for developing a website.
+Within Web-Twins, all Frontend engineer should only modify the Templates,CSS,JavaScript and commit these files, then everything will be finished. Backend engineers don't need to spend any time integrating these templates. This will be a perfect way for developing a website.
 
 What is Web-Twins meanning?
 
-Twins mean that it will give two websites, one is the Template Mode and another is the Real Mode. These two websites can switch to each other at any time. After you modify the source code in Template Mode, the Real mode will look like the same with Template Mode immedidately.
+Twins mean that it will be exist two websites, one is the <b>Template mode</b> website and another is the <b>Real mode</b> website. These two websites can switch to each other at any time. After you modify the source code in the  Template Mode, the Real mode will look like the same with Template Mode immedidately.
 
-We suggest frontend engineer to use Node.js to develop the websites for Template mode. Use Nodejs and NPM to install this framework and double click the file server.js. It will quickly create a web server. You don't need to worry about the installation of web service, just focus on tempalte development.
+We suggest frontend engineer to use Node.js to develop the websites for Template mode. Use Nodejs and NPM to install this framework and double click the file called server.js. It will quickly create a web server. You don't need to worry about the installation of web service, just focus on tempalte development.
+
+A template mode example: https://github.com/Web-Twins/Web-Twins-JS
 
 Key-Wins
 -------
