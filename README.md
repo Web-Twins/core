@@ -4,6 +4,8 @@ The core source code of Web-Twins
 
 Travis CI status: [![Unit testing](https://travis-ci.org/Web-Twins/core.png?branch=master)](https://travis-ci.org/Web-Twins/core) [![Coverage Status](https://coveralls.io/repos/Web-Twins/core/badge.png?branch=master)](https://coveralls.io/r/Web-Twins/core?branch=master)
 
+Development Structure Figure
+
 <img src="https://camo.githubusercontent.com/fe2d9e9063dabaf5951ef8f3835bbbc16cec52e3/68747470733a2f2f706f7365722e707567782e6f72672f7a6f72646975732f6c696768746e63616e64792f6c6963656e73652e737667" alt="license">
 
 <img src="https://raw.githubusercontent.com/puritys/MyProgram/master/images/twins_architecture.png">
@@ -18,6 +20,8 @@ Within Web-Twins, all Frontend engineer should only modify the Templates,CSS,Jav
 What is Web-Twins meanning?
 
 Twins mean that it will give two websites, one is the Template Mode and another is the Real Mode. These two websites can switch to each other at any time. After you modify the source code in Template Mode, the Real mode will look like the same with Template Mode immedidately.
+
+We suggest frontend engineer to use Node.js to develop the websites for Template mode. Use Nodejs and NPM to install this framework and double click the file server.js. It will quickly create a web server. You don't need to worry about the installation of web service, just focus on tempalte development.
 
 Infrastructure Design of web-twins
 ==================================
