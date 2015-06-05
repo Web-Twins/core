@@ -29,8 +29,9 @@ Key-Wins
 * Connection: Web-Twins has two data format JSON and YAML. Web-Twins use the MVC design pattern to connect the backend and frontend program.
 * Independent: Backend engineers can focus on programming without worrying about frontend HTML code or what CSS/JS should be loaded. Frontend enginners can also focus on template development.
 * Switching: We can switch Template Mode and Real Mode to compare the difference, also backend engineer can switch t he web page to template mode seeing what is the original UI design of Frontend engineer. This will clarify the Frontend requirements for the programming integrator.   
-* Debugging: Using JSON or YAML data to decide the responsibility of bug is belong to Backend or Frontend.
-* Bulit-in Frontend Skill: CSS/JS combination, Image Sprite.
+* Debugging: Using JSON or YAML data to decide the responsibility of bug should belong to Backend or Frontend.
+* Bulit-In Frontend Skill: CSS/JS combination, Image Sprite, Less/Sass/Scss, Handlebar, Jade.
+* Modularization: Separate the web page to become some small modules. Every module is a a MVC structrue including model, view and CSS/JS files. The web page will automatically load CSS/JS files of modueles.
 
 
 Infrastructure Design of web-twins
