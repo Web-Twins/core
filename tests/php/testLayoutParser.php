@@ -300,6 +300,56 @@ HTML;
     }/*}}}*/
 
 
+    public function providerCombineFiles() {/*{{{*/
+        $data = array();
+        $list = array(
+            "test1.css",   "/a/b/c/test2.css", "aaa/test3.css"
+        );
+        $expect =  array("base?test1.css&/a/b/c/test2.css&aaa/test3.css&");
+        $data[] = array($list, $expect);
+        //***********
+        $list = array(
+            "http://test1.css",   "https://a/b/c/test2.css", "//a/b/test.css"
+        );
+        $expect =  array("http://test1.css", "https://a/b/c/test2.css", "base?//a/b/test.css&");
+
+        $data[] = array($list, $expect);
+
+        //***********
+        $list = array(
+            "http://test1.css",  "", "test1.js", "test2.js", "http://test3.js"
+        );
+        $expect =  array("http://test1.css", "base?test1.js&test2.js&", "http://test3.js");
+
+        $data[] = array($list, $expect);
+
+
+        //******** exceed the maximum length
+        $list = array();
+        $file = "";
+        for ($i =0; $i < 1990; $i++) {
+            $file .= "a";
+        }
+        $file .= ".css";
+        $list[] = $file;
+        $list[] = "test1.css";
+        $expect =  array("base?" . $file . "&", "base?test1.css&");
+        $data[] = array($list, $expect);
+
+        return $data;
+    }/*}}}*/
+
+
+    /**
+     * @dataProvider providerCombineFiles
+     */
+    public function testCombineFiles($list, $expect) {/*{{{*/
+
+        $result = $this->tester->combineFiles("base", $list);
+        echo "result = ";print_r($result);
+        $this->assertEquals($expect, $result);
+    }/*}}}*/
+
 
 
 }
