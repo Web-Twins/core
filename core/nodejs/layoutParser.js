@@ -366,7 +366,7 @@ o.renderBody = function (bodyConfig, indent) {//{{{
  */
 o.getFinalStaticUrl = function (path, type) {//{{{
     var url = "";
-    if (path.indexOf('http') === 0) {
+    if (path.indexOf('http') === 0 || path.indexOf('//') === 0) {
         return path;
     }
     if (this.baseConfig['urlPaths']

@@ -89,7 +89,7 @@ class layoutParser {
             $tmpLen = strlen($file) + 1;
             if ($tmpLen == 1) continue;
             if ($tmpLen >= 4) $protocol = strtolower(substr($file, 0, 4));
-            if ($protocol === "http") {
+            if ($protocol === "http" || substr($file, 0, 2) === "//") {
                 if ($urlLen > 0) $res[] = $url;
                 $res[] = $file;
                 $url = "";
