@@ -86,7 +86,22 @@ o.render = function (pageDom, siteDom) {//{{{
 
     switch (this.output) {
         case this.OUTPUT_HTML_PAGE:
-            list.push("<!DOCTYPE html>\n<html>");
+            var siteHtml = siteDom.getElementsByTagName("html");
+            if (siteHtml) {
+                var html = "<html";
+                for (var attr in siteHtml[0].attributes ) {
+                    if ("-" === siteHtml[0].attributes[attr]) {
+                        html += " " + attr;
+                    } else {
+                        html+= " " + attr + "=\"" + siteHtml[0].attributes[attr] +"\"";
+                    }
+                }
+                html +=">";
+                list.push("<!DOCTYPE html>\n" + html);
+
+            } else {
+                list.push("<!DOCTYPE html>\n<html>");
+            }
             break;
     }
 
