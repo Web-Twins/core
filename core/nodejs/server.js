@@ -5,6 +5,11 @@ var i18n = require('i18n');
 var language = "en";
 var less = require('less');
 var sass = require('node-sass');
+//var Q = require('q');
+var fs = require('fs');
+
+global.TWINS = {};
+global.TWINS.util = require('util');
 
 
 i18n.configure({
@@ -28,10 +33,11 @@ var o = server.prototype;
 o.root = "";
 
 o.start = function (host, port) {//{{{
-    var loadConfigPages, loadLess, loadSass;
+    var loadConfigPages, loadLess, loadSass, loadJs;
     loadConfigPages = this.loadConfigPages.bind(this);
     loadLess = this.loadLess.bind(this);
     loadSass = this.loadSass.bind(this);
+    loadJs = this.loadJs.bind(this);
 
     if (!port) port = 80;
     if (!host) host = "localhost";
@@ -45,7 +51,7 @@ o.start = function (host, port) {//{{{
     app.use('/static', express.static(this.root + '/static'));
     app.use('/modules/**.less', loadLess);
     app.use('/modules/**.css', express.static(this.root + '/static'));
-    app.use('/modules/**.js', express.static(this.root + '/static'));
+    app.use('/modules/**.js', loadJs);
     app.use('/modules/**.scss', loadSass);
     app.use('/modules/**.sass', loadSass);
 
@@ -171,30 +177,43 @@ o.loadBaseConfig = function () {//{{{
 
 o.loadLess = function (req, res) {//{{{
     var html = "", path;
-
     path = this.root + "/"  + req.baseUrl;
-    //console.log("Less Compiler: " + path);
+    TWINS.util.log("Less Compiler: " + path, "debug");
     if (!php.is_file(path)) {
-
        res.write(".fileNotFound{}"); 
        res.end();
-
     } else {
         res.contentType("text/css");
-        less.render(php.file_get_contents(path), 
-            {
-                paths: ['.', './static/css'],
-            },
-            function (e, output) {
-               if (e) console.log(e);
-               res.write(output.css);
-               res.end();
-            }
-        );
+        fs.readFile(path, function (err, content) {
+            less.render(content.toString(), 
+                {
+                    paths: ['.', './static/css'],
+                },
+                function (e, output) {
+                   if (e) console.log(e);
+                   res.write(output.css);
+                   res.end();
+                }
+            );
+        }); 
     }
-
-
 };//}}}
+
+o.loadJs = function (req, res) {//{{{
+    var html = "", path;
+    path = this.root + "/"  + req.baseUrl;
+    TWINS.util.log("Load JavaScript: " + path, 'debug');
+    if (!php.is_file(path)) {
+       res.write(".fileNotFound{}"); 
+       res.end();
+    } else {
+        fs.readFile(path, function (err, content) {
+            res.write(content);
+            res.end();
+        }); 
+    }
+};//}}}
+
 
 o.loadSass = function (req, res) {//{{{
     var html = "", path;
