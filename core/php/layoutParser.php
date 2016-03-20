@@ -70,7 +70,11 @@ class layoutParser {
         $n = $attrs->length;
         for ($i = 0 ;$i < $n; $i++) {
             $attr = $attrs->item($i);
-            $html[] = $attr->name . "=\"" . $attr->value . "\"";
+            if ($attr->value == "-") {
+                $html[] = $attr->name;
+            } else {
+                $html[] = $attr->name . "=\"" . $attr->value . "\"";
+            }
         }
         if (empty($html)) return "";
 
@@ -274,6 +278,13 @@ class layoutParser {
         $pageDom = $pageDom->getElementsByTagName("page");
         if ($pageDom->length <= 0) return "";
         $pageDom = $pageDom->item(0);
+
+        // Load site config, if page has set
+        if ($pageDom->hasAttribute('siteConfig')) {
+            $siteConfig = $pageDom->getAttribute('siteConfig');
+            $siteXML = preg_replace('/[^\/]+$/', '', $siteXML);
+            $siteXML .= $siteConfig;
+        }
         if (is_file($siteXML)) {
             $siteDom = new DOMDocument();
             $siteDom->load($siteXML);
@@ -304,7 +315,15 @@ class layoutParser {
         switch ($this->output) {
             case $this::OUTPUT_HTML_PAGE:
             default:
-                $list[] = "<!DOCTYPE html>\n<html>";
+                $htmlNode = $siteDom->getElementsByTagName("html");
+                if ($htmlNode->length > 0) {
+                    $html = "<!DOCTYPE html>\n";
+                    $attrs = $this->attributeToString($htmlNode->item(0)->attributes);
+                    $html .= "<html" . $attrs .">";
+                    $list[] = $html;
+                } else {
+                    $list[] = "<!DOCTYPE html>\n<html>";
+                }
                 break;
         }
         if ($child) {
