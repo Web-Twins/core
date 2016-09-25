@@ -100,7 +100,7 @@ class layoutParser {
                 $urlLen = 0;
                 continue;
             }
-
+error_log(print_r(url, 1), 3, '/tmp/php.log');
             if ($tmpLen + $urlLen < self::MAX_URL_LENGTH) {
                 if ($urlLen === 0) {
                     $url = $base;  
@@ -254,11 +254,16 @@ class layoutParser {
     public function renderJs($jsText) {//{{{
         $indent = "";
         $list = array();
-
         if ($this->enableIndent) {
             $indent = "    ";
         }
-        $jsList = preg_split('/[\r\n\s]+/', $jsText);
+        if (is_string($jsText)) {
+            $jsList = preg_split('/[\r\n\s]+/', $jsText);
+        } else {
+            foreach ($jsText as $node) {
+                $jsList[] = $node->nodeValue;
+            }
+        }
 
         if (true === $this->enableJsCombo) {
             $jsList = $this->combineFiles($this->baseConfig['urlPaths']['jsCombo'], $jsList);
@@ -384,13 +389,6 @@ class layoutParser {
                         }
                     }
 
-                    //render js in top body
-                    //if ($this.bodyJs['top']) {
-                    //    this.bodyJs['top'].forEach(function (c) {
-                    //        list.push(self.renderJs(c.value));
-                    //    });
-                    //}
-
                     $list[] = $this->renderBody($node);
 
                     if ($siteDom) {
@@ -401,19 +399,6 @@ class layoutParser {
                         }
                     }
 
-                    //render css in bottom of body
-                    //if (this.bodyCss['bottom']) {
-                    //    this.bodyCss['bottom'].forEach(function (c) {
-                    //        list.push(self.renderCss(c.value));
-                    //    });
-                    //}
-
-                    ////render js in bottom of body
-                    //if (this.bodyJs['bottom']) {
-                    //    this.bodyJs['bottom'].forEach(function (c) {
-                    //        list.push(self.renderJs(c.value));
-                    //    });
-                    //}
 
                     switch ($this->output) {
                         case $this::OUTPUT_HTML_PAGE:
@@ -421,16 +406,15 @@ class layoutParser {
                             break;
                     }
 
-                    //render js after body
-                    //if (this.bodyJs['after']) {
-                    //    this.bodyJs['after'].forEach(function (c) {
-                    //        list.push(self.renderJs(c.value));
-                    //    });
-                    //}
 
                     break;
                 default:
                     break;
+            }
+        }
+        if (!empty($this->bodyJs['after'])) {
+            foreach ($this->bodyJs['after'] as $node) {
+                $list[] = $this->renderJs($node->nodeValue);
             }
         }
 
@@ -472,7 +456,6 @@ class layoutParser {
                     if ($node->hasAttribute("position")) {
                         $position = $node->getAttribute("position");
                     }
-
                     if ($position && preg_match('/body/i', $position)) {
                         if ($position === "topOfBody") {
                             $this->bodyJs['top'][] = node;
