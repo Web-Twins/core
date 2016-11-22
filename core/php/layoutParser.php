@@ -28,9 +28,14 @@ class layoutParser {
     const OUTPUT_HTML_PAGE = 1;
     const OUTPUT_JSON = 2;
     const OUTPUT_TEXT = 3;
-    
+    /**
+     * i18n International language
+     * root the path of templates 
+     * baseConfig config for different project.
+     */ 
     public function __construct($i18n, $root, $baseConfig) {/*{{{*/
         $this->context = array();
+        $this->staticVersion = "20160101";
         if ($i18n) {
             $this->i18n = $i18n;
         }
@@ -55,7 +60,7 @@ class layoutParser {
         } else {
             $baseConfig = array();
         }
-
+        if (!empty($baseConfig['staticVersion'])) $this->staticVersion = $baseConfig['staticVersion'];
         $this->context['baseConfig'] = $baseConfig;
 
         $this->module = new moduleObj($root, $this->context);
@@ -100,7 +105,6 @@ class layoutParser {
                 $urlLen = 0;
                 continue;
             }
-error_log(print_r(url, 1), 3, '/tmp/php.log');
             if ($tmpLen + $urlLen < self::MAX_URL_LENGTH) {
                 if ($urlLen === 0) {
                     $url = $base;  
@@ -270,6 +274,7 @@ error_log(print_r(url, 1), 3, '/tmp/php.log');
         }
 
         foreach ($jsList as $url) {
+            $url .= "?v=" . $this->staticVersion;
             $list[] = $indent . '<script src="' . $url . '"></script>';
         }
         return implode("\n", $list);

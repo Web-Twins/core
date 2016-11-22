@@ -13,7 +13,7 @@ class twinsService extends serviceBase {
         $this->pathStatic = $config['pathStatic'];
     }
 
-    public function fetchComboFiles() {
+    public function fetchComboFiles() {/*{{{*/
         $allowedExt = array("less", "css", "js");
         $files = array_keys($_GET);
 
@@ -41,5 +41,6 @@ class twinsService extends serviceBase {
                 echo file_get_contents($path);
             }
         }
-    }
+    }/*}}}*/
+
 }
