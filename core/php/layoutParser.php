@@ -250,6 +250,7 @@ class layoutParser {
         }
         
         foreach ($cssList as $url) {
+            $url .= "?v=" . $this->staticVersion;
             $list[] = $indent . '<link href="' . $url . '" rel="stylesheet" type="text/css">';
         }
         return implode("\n", $list);
