@@ -172,7 +172,8 @@ o.render = function (pageDom, siteDom) {//{{{
 
                 list.push(this.renderBody(child[i]));
 
-                if (siteConfig) {
+                if (siteConfig && this.output === this.OUTPUT_HTML_PAGE) {
+
                     siteBody = siteDom.getElementsByTagName("footer");
                     if (siteBody && siteBody[0]) {
                         // siteBody[0] is a DOMElement which only has the key nodeValue.
