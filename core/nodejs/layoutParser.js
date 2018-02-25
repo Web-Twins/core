@@ -146,7 +146,7 @@ o.render = function (pageDom, siteDom) {//{{{
                         break;
                 }
 
-                if (siteConfig) {
+                if (siteConfig && this.output === this.OUTPUT_HTML_PAGE) {
                     siteBody = siteDom.getElementsByTagName("header");
                     if (siteBody && siteBody[0]) {
                         siteBody[0].value = siteBody[0].nodeValue;
