@@ -325,7 +325,6 @@ class layoutParser {
 
         switch ($this->output) {
             case $this::OUTPUT_HTML_PAGE:
-            default:
                 $htmlNode = $siteDom->getElementsByTagName("html");
                 if ($htmlNode->length > 0) {
                     $html = "<!DOCTYPE html>\n";
@@ -335,6 +334,8 @@ class layoutParser {
                 } else {
                     $list[] = "<!DOCTYPE html>\n<html>";
                 }
+                break;
+            default:
                 break;
         }
         if ($child) {
@@ -381,7 +382,7 @@ class layoutParser {
                             break;
                     }
 
-                    if ($siteDom) {
+                    if ($siteDom && $this->output == $this::OUTPUT_HTML_PAGE) {
                         $siteBody = $siteDom->getElementsByTagName("header");
                         if ($siteBody->length > 0) {
                             $list[] = $this->renderBody($siteBody->item(0));
@@ -397,7 +398,7 @@ class layoutParser {
 
                     $list[] = $this->renderBody($node);
 
-                    if ($siteDom) {
+                    if ($siteDom && $this->output == $this::OUTPUT_HTML_PAGE) {
                         $siteBody = $siteDom->getElementsByTagName("footer");
                         if ($siteBody->length > 0) {
                             // siteBody[0] is a DOMElement which only has the key nodeValue.
