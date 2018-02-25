@@ -20,15 +20,14 @@ describe("Test redner page html: ", function () {//{{{
     it("P001_1 render page", function () {
         var dom = new php.DOMDocument();
         var page = "<page output=\"htmlPage\"><head><css>a.css</css></head></page>";
-
         var config = dom.loadXML(page);
+
         var expect = "<!DOCTYPE html>\n<html>" +
                      "\n<head>\n" +
                      '    <link href="a.css" rel="stylesheet" type="text/css">' + "\n" + 
                      "</head>\n" + 
                      "</html>";
         var result = layoutParser.render(dom);
-
         assert.equal(expect, result);
 
     });

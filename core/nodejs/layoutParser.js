@@ -86,7 +86,9 @@ o.render = function (pageDom, siteDom) {//{{{
 
     switch (this.output) {
         case this.OUTPUT_HTML_PAGE:
-            var siteHtml = siteDom.getElementsByTagName("html");
+            if (siteDom) {
+                var siteHtml = siteDom.getElementsByTagName("html");
+            }
             if (siteHtml && siteHtml[0] && siteHtml[0].attributes) {
                 var html = "<html";
                 for (var attr in siteHtml[0].attributes ) {
