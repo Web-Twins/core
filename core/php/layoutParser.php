@@ -7,7 +7,7 @@ class layoutParser {
     public $bodyCss; // The css files will render in html
     public $cssFile; // CSS level, such as module level, page level, global level ...
     public $context;
-    public $module; // The object of module 
+    public $module; // The object of module
     public $output = "page"; // 1:page, 2:json, 3:text
     public $baseConfig;
     public $enableIndent = true;
@@ -16,7 +16,7 @@ class layoutParser {
 
     /******* Features ********/
     /**
-     * Developed mode: 
+     * Developed mode:
     */
     // Combine the files of css into only one url
     public $enableCssCombo = true;
@@ -30,9 +30,9 @@ class layoutParser {
     const OUTPUT_TEXT = 3;
     /**
      * i18n International language
-     * root the path of templates 
+     * root the path of templates
      * baseConfig config for different project.
-     */ 
+     */
     public function __construct($i18n, $root, $baseConfig) {/*{{{*/
         $this->context = array();
         $this->staticVersion = "20160101";
@@ -88,7 +88,7 @@ class layoutParser {
 
     /**
      * Combine multi file into one url combo
-    */ 
+    */
     public function combineFiles($base, $list) {/*{{{*/
         $base .= "?";
         $res = array();
@@ -107,7 +107,7 @@ class layoutParser {
             }
             if ($tmpLen + $urlLen < self::MAX_URL_LENGTH) {
                 if ($urlLen === 0) {
-                    $url = $base;  
+                    $url = $base;
                     $urlLen = $baseLen;
                 }
                 $url .= $file . '&';
@@ -179,7 +179,7 @@ class layoutParser {
         if ($body && $body->length > 0) {
             $this->getModuleCssRecursive($body->item(0), $this->cssFile['moduleLevel']);
         }
-        return $this->cssFile['moduleLevel']; 
+        return $this->cssFile['moduleLevel'];
     }//}}}
 
     /**
@@ -227,7 +227,7 @@ class layoutParser {
     }
 
     /**
-     * 
+     *
      * @param $isFinalPath css url path is already final path, do not appent or prepend any text.
      */
     public function renderCss($cssText, $isFinalPath = false) {//{{{
@@ -248,7 +248,7 @@ class layoutParser {
         if (true === $this->enableCssCombo) {
             $cssList = $this->combineFiles($this->baseConfig['urlPaths']['cssCombo'], $cssList);
         }
-        
+
         foreach ($cssList as $url) {
             $url .= "?v=" . $this->staticVersion;
             $list[] = $indent . '<link href="' . $url . '" rel="stylesheet" type="text/css">';
@@ -299,7 +299,7 @@ class layoutParser {
         if (is_file($siteXML)) {
             $siteDom = new DOMDocument();
             $siteDom->load($siteXML);
-            $siteDom = $siteDom->getElementsByTagName("site"); 
+            $siteDom = $siteDom->getElementsByTagName("site");
             if ($siteDom->length > 0) {
                 $siteDom = $siteDom->item(0);
             } else {
@@ -319,7 +319,7 @@ class layoutParser {
 
         if ($pageDom->hasAttribute('output')) {
             $output = $pageDom->getAttribute('output');
-        } 
+        }
 
         $this->output = $this->getOutputType($output);
 
@@ -436,7 +436,7 @@ class layoutParser {
 
     public function renderHead($config) {//{{{
         $list = array();
-        $child = $config->childNodes; 
+        $child = $config->childNodes;
         $n = $child->length;
         for ($i = 0; $i < $n; $i++) {
             $node = $child->item($i);
@@ -496,7 +496,7 @@ class layoutParser {
             $n = $child->length;
         } else if ($bodyConfig->nodeValue) {
             $list[] = $indent . $bodyConfig->nodeValue;
-        } 
+        }
 
         for ($i = 0; $i< $n; $i++) {
             $elm = $child->item($i);
@@ -539,4 +539,3 @@ class layoutParser {
     }
 
 }
-

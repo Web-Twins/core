@@ -3,7 +3,7 @@ require_once __DIR__ . "/serviceBase.php";
 class twinsService extends serviceBase {
     public $pathStatic;
     public $isLess;
-    
+
     public function __construct($config) {
         if (!isset($config['pathStatic'])) {
             $errMsg = "Please set the static path, when you construct thw object twinsService";
@@ -31,7 +31,6 @@ class twinsService extends serviceBase {
         $extLen = strlen($ext);
         header("content-type: $contentType");
         $basePath = $this->pathStatic . "/" . $fileTypeDir . "/";
-        
         foreach ($files as $file) {
             $file = preg_replace('/[\.]{2,}/', '', $file);
             $file = str_replace(chr(0), '', $file);

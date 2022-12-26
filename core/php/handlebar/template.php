@@ -3,9 +3,9 @@ class_exists('LightnCandy') || require __DIR__ . "/lightncandy.php";
 
 class handlebar {
     public $tmpDir;
-    public $cache = false;
+    public $cache = true;
     public $baseDir = "";
-    public function __construct($path, $cache = false) 
+    public function __construct($path, $cache = true)
     {
         if (empty($path)) {
             $this->tmpDir = "/tmp/template_cache";
@@ -21,7 +21,7 @@ class handlebar {
         }
     }
 
-    public function render($template, $data) 
+    public function render($template, $data)
     {
         $html = file_get_contents($template);
         $dir = $this->tmpDir . '/' . dirname($template);
@@ -55,7 +55,7 @@ class handlebar {
                 for ($j = $i - 1; $j >=0; $j--) {
                     if (!empty($p[$j])) {
                         $p[$j] = ""; break;
-                    } 
+                    }
                 }
                 $p[$i] = "";
             }
@@ -67,4 +67,3 @@ class handlebar {
     }
 
 }
-

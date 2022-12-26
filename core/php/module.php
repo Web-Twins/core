@@ -58,7 +58,7 @@ class moduleObj {
 
             $extName = strtolower($extName);
             if (
-                $extName === "yaml" 
+                $extName === "yaml"
                 || $extName === "yml"
                ) {
                 $data = yaml_parse($data);
@@ -138,4 +138,3 @@ class moduleObj {
 
 
 }
-
